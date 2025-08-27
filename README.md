@@ -69,62 +69,63 @@ Each correct answer unlocks a piece of a hidden picture puzzle! With colorful vi
 ## 🛠️ Getting Started
 
 ### Prerequisites
+
 - Android Studio (Flamingo or newer)  
 - Minimum SDK: 21 (Android 5.0 Lollipop)  
 - Target SDK: 34  
 
 ### Installation
-```bash
-git clone https://github.com/yourusername/code-quest-adventure.git
 
+    1- git clone https://github.com/yourusername/code-quest-adventure.git
+    
+    2-Open the project in Android Studio
+    
+    3-Sync Gradle files
+    
+    4-Click Run to build & install on a device/emulator
+    
+    5-Start coding and reveal your first picture! 🚀
 
+### 📝 Development Roadmap & Commit History
 
-Open the project in Android Studio
+    Step	Commit Name	Description
+    1	feat: initial project setup	Created Android project structure
+    2	feat: main menu implementation	Added welcome screen and navigation
+    3	feat: challenge data model	Created Challenge class & sample data
+    4	feat: drag and drop interface	Implemented interactive coding blocks
+    5	feat: hidden picture system	Added picture reveal mechanics
+    6	feat: progress tracking	Implemented challenge completion logic
+    7	feat: sound effects integration	Added encouraging audio feedback
+    8	feat: animation enhancements	Smooth transitions and reveals
+    9	feat: completion celebration	Victory screen with full picture
+    10	docs: comprehensive README	Added documentation & setup guide
 
-Sync Gradle files
-
-Click Run to build & install on a device/emulator
-
-Start coding and reveal your first picture! 🚀
-
-📝 Development Roadmap & Commit History
-Step	Commit Name	Description
-1	feat: initial project setup	Created Android project structure
-2	feat: main menu implementation	Added welcome screen and navigation
-3	feat: challenge data model	Created Challenge class & sample data
-4	feat: drag and drop interface	Implemented interactive coding blocks
-5	feat: hidden picture system	Added picture reveal mechanics
-6	feat: progress tracking	Implemented challenge completion logic
-7	feat: sound effects integration	Added encouraging audio feedback
-8	feat: animation enhancements	Smooth transitions and reveals
-9	feat: completion celebration	Victory screen with full picture
-10	docs: comprehensive README	Added documentation & setup guide
-🧩 Code Implementation
-Project Structure
-app/
-├── src/main/java/com/codequest/adventure/
-│   ├── MainActivity.java
-│   ├── GameActivity.java
-│   ├── models/
-│   │   ├── Challenge.java
-│   │   └── CodeBlock.java
-│   ├── views/
-│   │   ├── CodeChallengeView.java
-│   │   ├── HiddenPictureView.java
-│   │   └── DraggableCodeBlock.java
-│   └── utils/
-│       ├── GameLogic.java
-│       └── SoundManager.java
-├── src/main/res/
-│   ├── layout/
-│   ├── drawable/
-│   ├── raw/ (audio files)
-│   └── values/
-└── src/main/assets/ (hidden pictures)
-
-
-
-
+## 🧩 Code Implementation
+    Project Structure
+    app/
+    ├── src/main/java/com/codequest/adventure/
+    │   ├── MainActivity.java
+    │   ├── GameActivity.java
+    │   ├── models/
+    │   │   ├── Challenge.java
+    │   │   └── CodeBlock.java
+    │   ├── views/
+    │   │   ├── CodeChallengeView.java
+    │   │   ├── HiddenPictureView.java
+    │   │   └── DraggableCodeBlock.java
+    │   └── utils/
+    │       ├── GameLogic.java
+    │       └── SoundManager.java
+    ├── src/main/res/
+    │   ├── layout/
+    │   ├── drawable/
+    │   ├── raw/ (audio files)
+    │   └── values/
+    └── src/main/assets/ (hidden pictures)
+    
+    
+    
+    
 
 
 
