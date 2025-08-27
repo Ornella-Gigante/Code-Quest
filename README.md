@@ -11,10 +11,7 @@ A safe, ad-free environment that sparks curiosity and builds programming confide
 Each correct answer unlocks a piece of a hidden picture puzzle! With colorful visuals, cheerful sounds, and bite-sized coding lessons, learning programming basics has never been this fun.
 
 
- <div align="center">
-  <img src="" width="350" alt="Gameplay Screenshot" style="display:inline-block; margin-right: 18px;"/>
-  <img src="" width="340" alt="Hidden Picture Reveal" style="display:inline-block; margin-left: 18px;"/>
-</div>
+
 ---
 
 ## 🎮 Game Structure
