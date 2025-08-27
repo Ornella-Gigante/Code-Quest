@@ -10,11 +10,11 @@ A safe, ad-free environment that sparks curiosity and builds programming confide
 **Code Quest** is an exciting educational game where kids solve simple programming challenges such as completing code lines, dragging blocks into place, and fixing small errors.  
 Each correct answer unlocks a piece of a hidden picture puzzle! With colorful visuals, cheerful sounds, and bite-sized coding lessons, learning programming basics has never been this fun.
 
-<div align="center">
-  <img src="gameplay_screenshot.png" width="350" alt="Gameplay Screenshot" style="display:inline-block; margin-right: 18px;"/>
-  <img src="hidden_picture.png" width="340" alt="Hidden Picture Reveal" style="display:inline-block; margin-left: 18px;"/>
-</div>
 
+ <div align="center">
+  <img src="" width="350" alt="Gameplay Screenshot" style="display:inline-block; margin-right: 18px;"/>
+  <img src="" width="340" alt="Hidden Picture Reveal" style="display:inline-block; margin-left: 18px;"/>
+</div>
 ---
 
 ## 🎮 Game Structure
