@@ -122,7 +122,11 @@ Each correct answer unlocks a piece of a hidden picture puzzle! With colorful vi
     
     
     
-    
+## 📩 Contact & Support
+
+Questions or ideas? Feel free to reach out via GitHub issues or pull requests!
+
+
 
 
 
