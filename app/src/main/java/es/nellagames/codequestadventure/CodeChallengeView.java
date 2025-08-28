@@ -1,4 +1,4 @@
-package es.nellagames.codequestadventure.views;
+package es.nellagames.codequestadventure;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,8 +9,8 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import es.nellagames.codequestadventure.models.Challenge;
-import es.nellagames.codequestadventure.models.CodeBlock;
+import es.nellagames.codequestadventure.Challenge;
+import es.nellagames.codequestadventure.CodeBlock;
 import java.util.ArrayList;
 import java.util.List;
 

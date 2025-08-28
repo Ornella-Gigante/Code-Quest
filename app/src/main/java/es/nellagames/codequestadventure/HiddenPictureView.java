@@ -1,4 +1,4 @@
-package es.nellagames.codequestadventure.views;
+package es.nellagames.codequestadventure;
 
 import android.content.Context;
 import android.graphics.Bitmap;
