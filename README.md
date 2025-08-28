@@ -120,7 +120,20 @@ Each correct answer unlocks a piece of a hidden picture puzzle! With colorful vi
     │   └── values/
     └── src/main/assets/ (hidden pictures)
     
-    
+## 🎵 Music & Audio Credits
+
+All background music and sound effects have been properly audited for copyright and licensing compliance:
+
+* **Success Sound Effect** by [FoxBoyTails](https://pixabay.com/users/foxboytails-49447089/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=317318) from [Pixabay](https://pixabay.com/sound-effects//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=317318)
+
+* **Error Sound Effect** by [freesound_community](https://pixabay.com/users/freesound_community-46691455/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=6435) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=6435)
+
+* **Victory Sound Effect** by [freesound_community](https://pixabay.com/users/freesound_community-46691455/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=6416) from [Pixabay](https://pixabay.com/sound-effects//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=6416)
+
+* **Additional Sound Effect** by [Gaston A-P](https://pixabay.com/users/xtremefreddy-32332307/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=145285) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=145285)
+
+Audio assets are released under a license that allows free use in personal and commercial projects without attribution (attribution added voluntarily).
+
     
 ## 📩 Contact & Support
 
