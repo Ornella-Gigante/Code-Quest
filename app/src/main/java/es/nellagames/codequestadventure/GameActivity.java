@@ -12,7 +12,6 @@ import es.nellagames.codequestadventure.GameLogic;
 import es.nellagames.codequestadventure.SoundManager;
 import es.nellagames.codequestadventure.CodeChallengeView;
 import es.nellagames.codequestadventure.HiddenPictureView;
-
 public class GameActivity extends AppCompatActivity {
 
     private TextView challengeTitle, challengeDescription;
@@ -74,7 +73,7 @@ public class GameActivity extends AppCompatActivity {
         String userAnswer = challengeView.getUserAnswer();
 
         if (currentChallenge.isCorrect(userAnswer)) {
-            // Correct answer!
+            // ¡Respuesta correcta!
             soundManager.playSuccess();
 
             // Update progress
@@ -97,6 +96,7 @@ public class GameActivity extends AppCompatActivity {
                 nextButton.setText("¡Completar Aventura! 🏆");
             }
         } else {
+            // Respuesta incorrecta
             soundManager.playError();
             Toast.makeText(this, "¡Inténtalo de nuevo! Piensa paso a paso 🤔", Toast.LENGTH_SHORT).show();
         }
@@ -106,7 +106,7 @@ public class GameActivity extends AppCompatActivity {
         currentChallengeIndex++;
 
         if (currentChallengeIndex >= 10) {
-            // Game completed!
+            // ¡Juego completado!
             showCompletionScreen();
         } else {
             submitButton.setVisibility(View.VISIBLE);
@@ -116,10 +116,22 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showCompletionScreen() {
-        // Show completion celebration
+        // Reproducir sonido de victoria
         soundManager.playVictory();
         Toast.makeText(this, "¡Felicitaciones! ¡Has completado Code Quest! 🎉🏆", Toast.LENGTH_LONG).show();
+
+        // Opcional: mostrar game over después de la victoria
+        new android.os.Handler().postDelayed(() -> {
+            soundManager.playGameOver();
+        }, 2000); // 2 segundos después
+
         finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // La música continúa automáticamente porque es un servicio
     }
 
     @Override
@@ -128,5 +140,6 @@ public class GameActivity extends AppCompatActivity {
         if (soundManager != null) {
             soundManager.release();
         }
+        // NO detenemos la música aquí para que continúe en MainActivity
     }
 }

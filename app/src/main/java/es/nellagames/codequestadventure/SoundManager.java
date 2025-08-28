@@ -4,28 +4,44 @@ package es.nellagames.codequestadventure;
 import android.content.Context;
 import android.media.MediaPlayer;
 import es.nellagames.codequestadventure.R;
-
 public class SoundManager {
 
-    private MediaPlayer successPlayer, errorPlayer, victoryPlayer;
+    private MediaPlayer successPlayer, errorPlayer, victoryPlayer, gameOverPlayer;
     private boolean soundEnabled = true;
+    private Context context;
 
     public SoundManager(Context context) {
+        this.context = context;
+        initializeSounds();
+    }
+
+    private void initializeSounds() {
         try {
-            successPlayer = MediaPlayer.create(context, R.raw.success);
+            // Efectos de sonido cortos
+            successPlayer = MediaPlayer.create(context, R.raw.game_sound);
             errorPlayer = MediaPlayer.create(context, R.raw.error);
             victoryPlayer = MediaPlayer.create(context, R.raw.victory);
+            gameOverPlayer = MediaPlayer.create(context, R.raw.game_over);
+
+            // Configurar volúmenes
+            if (successPlayer != null) successPlayer.setVolume(0.8f, 0.8f);
+            if (errorPlayer != null) errorPlayer.setVolume(0.7f, 0.7f);
+            if (victoryPlayer != null) victoryPlayer.setVolume(0.9f, 0.9f);
+            if (gameOverPlayer != null) gameOverPlayer.setVolume(0.8f, 0.8f);
+
         } catch (Exception e) {
             e.printStackTrace();
-            // If sound files are not available, continue without sounds
         }
     }
 
     public void playSuccess() {
         if (soundEnabled && successPlayer != null) {
             try {
-                successPlayer.seekTo(0);
-                successPlayer.start();
+                if (successPlayer.isPlaying()) {
+                    successPlayer.seekTo(0);
+                } else {
+                    successPlayer.start();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -35,8 +51,11 @@ public class SoundManager {
     public void playError() {
         if (soundEnabled && errorPlayer != null) {
             try {
-                errorPlayer.seekTo(0);
-                errorPlayer.start();
+                if (errorPlayer.isPlaying()) {
+                    errorPlayer.seekTo(0);
+                } else {
+                    errorPlayer.start();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -46,12 +65,46 @@ public class SoundManager {
     public void playVictory() {
         if (soundEnabled && victoryPlayer != null) {
             try {
-                victoryPlayer.seekTo(0);
-                victoryPlayer.start();
+                if (victoryPlayer.isPlaying()) {
+                    victoryPlayer.seekTo(0);
+                } else {
+                    victoryPlayer.start();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void playGameOver() {
+        if (soundEnabled && gameOverPlayer != null) {
+            try {
+                if (gameOverPlayer.isPlaying()) {
+                    gameOverPlayer.seekTo(0);
+                } else {
+                    gameOverPlayer.start();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // Control de música de fondo
+    public void startBackgroundMusic() {
+        MusicService.startBackgroundMusic(context);
+    }
+
+    public void pauseBackgroundMusic() {
+        MusicService.pauseBackgroundMusic(context);
+    }
+
+    public void resumeBackgroundMusic() {
+        MusicService.resumeBackgroundMusic(context);
+    }
+
+    public void stopBackgroundMusic() {
+        MusicService.stopBackgroundMusic(context);
     }
 
     public void setSoundEnabled(boolean enabled) {
@@ -75,6 +128,10 @@ public class SoundManager {
             if (victoryPlayer != null) {
                 victoryPlayer.release();
                 victoryPlayer = null;
+            }
+            if (gameOverPlayer != null) {
+                gameOverPlayer.release();
+                gameOverPlayer = null;
             }
         } catch (Exception e) {
             e.printStackTrace();

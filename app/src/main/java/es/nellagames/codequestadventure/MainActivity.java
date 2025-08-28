@@ -9,19 +9,22 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private Button startButton, continueButton;
     private TextView progressText;
     private ProgressBar progressBar;
     private SharedPreferences prefs;
+    private SoundManager soundManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.game_activity);
+        setContentView(R.layout.activity_main);
 
         initializeViews();
+        initializeAudio();
         setupListeners();
         updateProgress();
     }
@@ -34,14 +37,26 @@ public class MainActivity extends AppCompatActivity {
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
     }
 
+    private void initializeAudio() {
+        soundManager = new SoundManager(this);
+        // Iniciar música de fondo al abrir la app
+        soundManager.startBackgroundMusic();
+    }
+
     private void setupListeners() {
         startButton.setOnClickListener(v -> {
+            // Sonido de éxito al iniciar
+            soundManager.playSuccess();
+
             // Reset progress for new game
             prefs.edit().clear().apply();
             startGame();
         });
 
-        continueButton.setOnClickListener(v -> startGame());
+        continueButton.setOnClickListener(v -> {
+            soundManager.playSuccess();
+            startGame();
+        });
     }
 
     private void updateProgress() {
@@ -50,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         progressBar.setMax(totalChallenges);
         progressBar.setProgress(completedChallenges);
-        progressText.setText("Progress: " + completedChallenges + "/" + totalChallenges + " challenges completed");
+        progressText.setText("Progreso: " + completedChallenges + "/" + totalChallenges + " desafíos completados");
 
         continueButton.setVisibility(completedChallenges > 0 ? View.VISIBLE : View.GONE);
     }
@@ -58,5 +73,22 @@ public class MainActivity extends AppCompatActivity {
     private void startGame() {
         Intent intent = new Intent(this, GameActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reanudar música si regresamos a esta activity
+        if (soundManager != null) {
+            soundManager.resumeBackgroundMusic();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (soundManager != null) {
+            soundManager.release();
+        }
     }
 }
