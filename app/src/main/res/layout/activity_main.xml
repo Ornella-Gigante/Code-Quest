@@ -3,97 +3,102 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F9FA">
+    android:gravity="center"
+    android:background="@drawable/background_gradient"
+    android:padding="24dp">
 
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Logo/Imagen del juego -->
+    <ImageView
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:src="@drawable/app_logo"
+        android:layout_marginBottom="32dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Logo de Code Quest Adventure"/>
+
+    <!-- Título principal -->
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@drawable/header_gradient">
+        android:text="🧩 Code Quest Adventure"
+        android:textSize="32sp"
+        android:textColor="#2E7D32"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:gravity="center"/>
 
-        <TextView
-            android:id="@+id/challengeTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Título del Desafío"
-            android:textSize="22sp"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/challengeDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Descripción del desafío"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="8dp"/>
-
-    </LinearLayout>
-
-    <!-- Game Area -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <!-- Coding Challenge -->
-        <es.nellagames.codequestadventure.CodeChallengeView
-            android:id="@+id/challengeView"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@android:color/white"
-            android:layout_margin="4dp"/>
-
-        <!-- Hidden Picture -->
-        <es.nellagames.codequestadventure.HiddenPictureView
-            android:id="@+id/pictureView"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#E8EAF6"
-            android:layout_margin="4dp"/>
-
-    </LinearLayout>
-
-    <!-- Bottom Controls -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Subtítulo -->
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
+        android:text="¡Aprende a programar revelando imágenes misteriosas!"
+        android:textSize="18sp"
+        android:textColor="#555555"
+        android:textAlignment="center"
         android:gravity="center"
-        android:background="#FFFFFF">
+        android:layout_marginBottom="32dp"
+        android:maxWidth="300dp"/>
 
-        <Button
-            android:id="@+id/submitButton"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:text="✅ Verificar Respuesta"
-            android:textSize="16sp"
-            android:backgroundTint="#4CAF50"
-            android:textColor="@android:color/white"
-            android:layout_marginEnd="8dp"
-            style="@style/Widget.AppCompat.Button"/>
+    <!-- Texto de progreso -->
+    <TextView
+        android:id="@+id/progressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¡Listo para comenzar tu aventura!"
+        android:textSize="16sp"
+        android:textColor="#777777"
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:gravity="center"/>
 
-        <Button
-            android:id="@+id/nextButton"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:text="➡️ Siguiente Desafío"
-            android:textSize="16sp"
-            android:backgroundTint="#FF9800"
-            android:textColor="@android:color/white"
-            android:layout_marginStart="8dp"
-            android:visibility="gone"
-            style="@style/Widget.AppCompat.Button"/>
+    <!-- Barra de progreso -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginBottom="32dp"
+        android:progressTint="#4CAF50"
+        android:progressBackgroundTint="#E0E0E0"
+        android:max="10"
+        android:progress="0"/>
 
-    </LinearLayout>
+    <!-- Botón Comenzar Juego -->
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:text="🚀 Nuevo Juego"
+        android:textSize="18sp"
+        android:backgroundTint="#4CAF50"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp"
+        android:textAllCaps="false"
+        android:elevation="4dp"/>
+
+    <!-- Botón Continuar -->
+    <Button
+        android:id="@+id/continueButton"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:text="📖 Continuar Aventura"
+        android:textSize="18sp"
+        android:backgroundTint="#2196F3"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        android:elevation="4dp"/>
+
+    <!-- Información adicional -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10 desafíos • Imagen oculta • Java básico"
+        android:textSize="14sp"
+        android:textColor="#888888"
+        android:layout_marginTop="32dp"
+        android:textAlignment="center"
+        android:gravity="center"/>
 
 </LinearLayout>
