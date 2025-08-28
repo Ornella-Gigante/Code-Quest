@@ -1,7 +1,10 @@
 package es.nellagames.codequestadventure;
-
-
-
+import android.app.Service;
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.os.Binder;
+import android.os.IBinder;
+import es.nellagames.codequestadventure.R;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -18,6 +21,7 @@ public class MusicService extends Service {
 
     private MediaPlayer mediaPlayer;
     private boolean isPaused = false;
+    private static boolean isServiceRunning = false; // ✅ Control de estado
     private final IBinder binder = new MusicBinder();
 
     public class MusicBinder extends Binder {
@@ -29,6 +33,7 @@ public class MusicService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        isServiceRunning = true; // ✅ Marcar servicio como activo
     }
 
     @Override
@@ -52,7 +57,7 @@ public class MusicService extends Service {
                 }
             }
         }
-        return START_STICKY; // Reinicia el servicio si es terminado por el sistema
+        return START_NOT_STICKY; // ✅ Cambiar a NOT_STICKY para evitar reinicios automáticos
     }
 
     @Override
@@ -61,11 +66,20 @@ public class MusicService extends Service {
     }
 
     private void playMusic() {
+        // ✅ Verificar si ya está reproduciéndose ANTES de crear nueva instancia
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            return; // Ya está reproduciéndose, no hacer nada
+        }
+
         if (mediaPlayer == null) {
             try {
                 mediaPlayer = MediaPlayer.create(this, R.raw.game_sound);
-                mediaPlayer.setLooping(true);
-                mediaPlayer.setVolume(0.6f, 0.6f); // Volumen al 60%
+                if (mediaPlayer != null) {
+                    mediaPlayer.setLooping(true);
+                    mediaPlayer.setVolume(0.6f, 0.6f);
+                } else {
+                    return; // No se pudo crear el MediaPlayer
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
@@ -73,32 +87,49 @@ public class MusicService extends Service {
         }
 
         if (!mediaPlayer.isPlaying() && !isPaused) {
-            mediaPlayer.start();
+            try {
+                mediaPlayer.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void pauseMusic() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            isPaused = true;
+            try {
+                mediaPlayer.pause();
+                isPaused = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void resumeMusic() {
         if (mediaPlayer != null && isPaused) {
-            mediaPlayer.start();
-            isPaused = false;
+            try {
+                mediaPlayer.start();
+                isPaused = false;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void stopMusic() {
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
+            try {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
+                mediaPlayer.release();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                mediaPlayer = null;
+                isPaused = false;
             }
-            mediaPlayer.release();
-            mediaPlayer = null;
-            isPaused = false;
         }
     }
 
@@ -108,38 +139,56 @@ public class MusicService extends Service {
 
     public void setVolume(float volume) {
         if (mediaPlayer != null) {
-            mediaPlayer.setVolume(volume, volume);
+            try {
+                mediaPlayer.setVolume(volume, volume);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void onDestroy() {
         stopMusic();
+        isServiceRunning = false; // ✅ Marcar servicio como inactivo
         super.onDestroy();
     }
 
-    // Métodos estáticos para controlar el servicio desde cualquier Activity
+    // ✅ Métodos estáticos mejorados con verificación de estado
     public static void startBackgroundMusic(android.content.Context context) {
-        Intent intent = new Intent(context, MusicService.class);
-        intent.setAction(ACTION_PLAY);
-        context.startService(intent);
+        if (!isServiceRunning) { // Solo iniciar si no está activo
+            Intent intent = new Intent(context, MusicService.class);
+            intent.setAction(ACTION_PLAY);
+            context.startService(intent);
+        }
     }
 
     public static void pauseBackgroundMusic(android.content.Context context) {
-        Intent intent = new Intent(context, MusicService.class);
-        intent.setAction(ACTION_PAUSE);
-        context.startService(intent);
+        if (isServiceRunning) {
+            Intent intent = new Intent(context, MusicService.class);
+            intent.setAction(ACTION_PAUSE);
+            context.startService(intent);
+        }
     }
 
     public static void resumeBackgroundMusic(android.content.Context context) {
-        Intent intent = new Intent(context, MusicService.class);
-        intent.setAction(ACTION_RESUME);
-        context.startService(intent);
+        if (isServiceRunning) {
+            Intent intent = new Intent(context, MusicService.class);
+            intent.setAction(ACTION_RESUME);
+            context.startService(intent);
+        }
     }
 
     public static void stopBackgroundMusic(android.content.Context context) {
-        Intent intent = new Intent(context, MusicService.class);
-        intent.setAction(ACTION_STOP);
-        context.startService(intent);
+        if (isServiceRunning) {
+            Intent intent = new Intent(context, MusicService.class);
+            intent.setAction(ACTION_STOP);
+            context.stopService(intent);
+        }
+    }
+
+    // ✅ Método para verificar estado externamente
+    public static boolean isRunning() {
+        return isServiceRunning;
     }
 }

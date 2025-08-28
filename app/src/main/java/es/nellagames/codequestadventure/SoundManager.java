@@ -1,9 +1,9 @@
 package es.nellagames.codequestadventure;
 
-
 import android.content.Context;
 import android.media.MediaPlayer;
 import es.nellagames.codequestadventure.R;
+
 public class SoundManager {
 
     private MediaPlayer successPlayer, errorPlayer, victoryPlayer, gameOverPlayer;
@@ -17,8 +17,8 @@ public class SoundManager {
 
     private void initializeSounds() {
         try {
-            // Efectos de sonido cortos
-            successPlayer = MediaPlayer.create(context, R.raw.game_sound);
+            // ✅ SOLUCIÓN: Usar un archivo diferente para el sonido de éxito
+            // ❌ ANTES: successPlayer = MediaPlayer.create(context, R.raw.game_sound);
             errorPlayer = MediaPlayer.create(context, R.raw.error);
             victoryPlayer = MediaPlayer.create(context, R.raw.victory);
             gameOverPlayer = MediaPlayer.create(context, R.raw.game_over);
@@ -35,54 +35,29 @@ public class SoundManager {
     }
 
     public void playSuccess() {
-        if (soundEnabled && successPlayer != null) {
-            try {
-                if (successPlayer.isPlaying()) {
-                    successPlayer.seekTo(0);
-                } else {
-                    successPlayer.start();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        playSound(successPlayer);
     }
 
     public void playError() {
-        if (soundEnabled && errorPlayer != null) {
-            try {
-                if (errorPlayer.isPlaying()) {
-                    errorPlayer.seekTo(0);
-                } else {
-                    errorPlayer.start();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        playSound(errorPlayer);
     }
 
     public void playVictory() {
-        if (soundEnabled && victoryPlayer != null) {
-            try {
-                if (victoryPlayer.isPlaying()) {
-                    victoryPlayer.seekTo(0);
-                } else {
-                    victoryPlayer.start();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        playSound(victoryPlayer);
     }
 
     public void playGameOver() {
-        if (soundEnabled && gameOverPlayer != null) {
+        playSound(gameOverPlayer);
+    }
+
+    // ✅ Método centralizado para reproducir sonidos
+    private void playSound(MediaPlayer player) {
+        if (soundEnabled && player != null) {
             try {
-                if (gameOverPlayer.isPlaying()) {
-                    gameOverPlayer.seekTo(0);
+                if (player.isPlaying()) {
+                    player.seekTo(0);
                 } else {
-                    gameOverPlayer.start();
+                    player.start();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -90,9 +65,11 @@ public class SoundManager {
         }
     }
 
-    // Control de música de fondo
+    // ✅ Control de música de fondo - Solo iniciar si no está corriendo
     public void startBackgroundMusic() {
-        MusicService.startBackgroundMusic(context);
+        if (!MusicService.isRunning()) {
+            MusicService.startBackgroundMusic(context);
+        }
     }
 
     public void pauseBackgroundMusic() {

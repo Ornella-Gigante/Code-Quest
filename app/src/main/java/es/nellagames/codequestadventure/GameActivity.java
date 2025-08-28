@@ -12,6 +12,8 @@ import es.nellagames.codequestadventure.GameLogic;
 import es.nellagames.codequestadventure.SoundManager;
 import es.nellagames.codequestadventure.CodeChallengeView;
 import es.nellagames.codequestadventure.HiddenPictureView;
+
+
 public class GameActivity extends AppCompatActivity {
 
     private TextView challengeTitle, challengeDescription;
@@ -52,6 +54,9 @@ public class GameActivity extends AppCompatActivity {
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
         currentChallengeIndex = prefs.getInt("current_challenge", 0);
+
+        // ✅ NO iniciar música aquí - ya está corriendo desde MainActivity
+        // ✅ Solo configurar los listeners
 
         submitButton.setOnClickListener(v -> checkAnswer());
         nextButton.setOnClickListener(v -> nextChallenge());
@@ -131,7 +136,8 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // La música continúa automáticamente porque es un servicio
+        // ✅ La música continúa automáticamente porque es un servicio
+        // ✅ NO llamar a resumeBackgroundMusic() aquí
     }
 
     @Override
@@ -140,6 +146,6 @@ public class GameActivity extends AppCompatActivity {
         if (soundManager != null) {
             soundManager.release();
         }
-        // NO detenemos la música aquí para que continúe en MainActivity
+        // ✅ NO detener la música aquí para que continúe en MainActivity
     }
 }
