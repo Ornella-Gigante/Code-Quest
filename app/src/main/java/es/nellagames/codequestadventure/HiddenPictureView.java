@@ -32,30 +32,8 @@ public class HiddenPictureView extends View {
     }
 
     private void initializeView() {
-        // Load the hidden picture (create a simple robot drawing if image not available)
-        try {
-            hiddenPicture = BitmapFactory.decodeResource(getResources(), R.drawable.hidden_robot);
-        } catch (Exception e) {
-            // Create a simple colored rectangle as fallback
-            hiddenPicture = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888);
-            Canvas tempCanvas = new Canvas(hiddenPicture);
-            Paint tempPaint = new Paint();
-            tempPaint.setColor(Color.parseColor("#4CAF50"));
-            tempCanvas.drawRect(0, 0, 400, 400, tempPaint);
-
-            // Draw a simple robot
-            tempPaint.setColor(Color.parseColor("#2196F3"));
-            tempCanvas.drawRect(150, 100, 250, 200, tempPaint); // head
-            tempCanvas.drawRect(100, 200, 300, 350, tempPaint); // body
-
-            tempPaint.setColor(Color.WHITE);
-            tempCanvas.drawCircle(170, 130, 15, tempPaint); // left eye
-            tempCanvas.drawCircle(230, 130, 15, tempPaint); // right eye
-
-            tempPaint.setColor(Color.BLACK);
-            tempCanvas.drawCircle(170, 130, 8, tempPaint); // left pupil
-            tempCanvas.drawCircle(230, 130, 8, tempPaint); // right pupil
-        }
+        // Crear imagen programáticamente (sin necesidad de archivo)
+        createHiddenPictureImage();
 
         // Initialize paints
         revealPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -78,6 +56,66 @@ public class HiddenPictureView extends View {
         // Create puzzle pieces
         puzzlePieces = new ArrayList<>();
     }
+
+    private void createHiddenPictureImage() {
+        // Crear un bitmap de 400x400 píxeles
+        hiddenPicture = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888);
+        Canvas tempCanvas = new Canvas(hiddenPicture);
+
+        // Fondo degradado
+        Paint backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        backgroundPaint.setColor(Color.parseColor("#E8F5E8"));
+        tempCanvas.drawRect(0, 0, 400, 400, backgroundPaint);
+
+        // Dibujar un robot simpático
+        Paint robotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        // Cabeza del robot
+        robotPaint.setColor(Color.parseColor("#4A90E2"));
+        tempCanvas.drawRoundRect(new RectF(120, 80, 280, 200), 20, 20, robotPaint);
+
+        // Cuerpo del robot
+        robotPaint.setColor(Color.parseColor("#8E7CC3"));
+        tempCanvas.drawRoundRect(new RectF(100, 200, 300, 350), 15, 15, robotPaint);
+
+        // Ojos del robot
+        robotPaint.setColor(Color.WHITE);
+        tempCanvas.drawCircle(160, 130, 20, robotPaint); // ojo izquierdo
+        tempCanvas.drawCircle(240, 130, 20, robotPaint); // ojo derecho
+
+        // Pupilas
+        robotPaint.setColor(Color.BLACK);
+        tempCanvas.drawCircle(160, 130, 10, robotPaint);
+        tempCanvas.drawCircle(240, 130, 10, robotPaint);
+
+        // Sonrisa
+        robotPaint.setColor(Color.parseColor("#D4AF37"));
+        robotPaint.setStyle(Paint.Style.STROKE);
+        robotPaint.setStrokeWidth(6f);
+        RectF smileRect = new RectF(170, 140, 230, 180);
+        tempCanvas.drawArc(smileRect, 0, 180, false, robotPaint);
+
+        // Brazos
+        robotPaint.setColor(Color.parseColor("#4A90E2"));
+        robotPaint.setStyle(Paint.Style.FILL);
+        tempCanvas.drawRoundRect(new RectF(60, 220, 100, 280), 10, 10, robotPaint); // brazo izquierdo
+        tempCanvas.drawRoundRect(new RectF(300, 220, 340, 280), 10, 10, robotPaint); // brazo derecho
+
+        // Piernas
+        tempCanvas.drawRoundRect(new RectF(130, 350, 170, 380), 8, 8, robotPaint); // pierna izquierda
+        tempCanvas.drawRoundRect(new RectF(230, 350, 270, 380), 8, 8, robotPaint); // pierna derecha
+
+        // Detalles decorativos
+        robotPaint.setColor(Color.parseColor("#D4AF37"));
+        tempCanvas.drawCircle(200, 250, 8, robotPaint); // botón central
+        tempCanvas.drawRect(180, 280, 220, 290, robotPaint); // panel
+
+        // Antenas
+        robotPaint.setColor(Color.parseColor("#FF6B6B"));
+        tempCanvas.drawRect(195, 60, 205, 80, robotPaint); // antena
+        tempCanvas.drawCircle(200, 55, 8, robotPaint); // bolita de antena
+    }
+
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
