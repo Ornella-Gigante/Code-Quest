@@ -33,30 +33,33 @@
 
     </LinearLayout>
 
-    <!-- Main Game Area -->
+    <!-- Main Game Area - VERTICAL SPLIT -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <!-- Coding Challenge Panel -->
+
+        <!-- Hidden Picture Panel - BOTTOM -->
+        <es.nellagames.codequestadventure.HiddenPictureView
+            android:id="@+id/pictureView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#E8EAF6"
+            android:layout_margin="4dp"/>
+
+
+        <!-- Coding Challenge Panel - TOP -->
         <es.nellagames.codequestadventure.CodeChallengeView
             android:id="@+id/challengeView"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:background="@android:color/white"
             android:layout_margin="4dp"/>
 
-        <!-- Hidden Picture Panel -->
-        <es.nellagames.codequestadventure.HiddenPictureView
-            android:id="@+id/pictureView"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#E8EAF6"
-            android:layout_margin="4dp"/>
 
     </LinearLayout>
 
