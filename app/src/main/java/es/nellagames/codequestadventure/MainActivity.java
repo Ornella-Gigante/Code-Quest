@@ -8,15 +8,18 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import android.app.Dialog;
+import android.widget.LinearLayout;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button startButton, continueButton;
-    private TextView progressText;
+    private Button startButton, continueButton, difficultyButton;
+    private TextView progressText, difficultyText;
     private ProgressBar progressBar;
     private SharedPreferences prefs;
     private SoundManager soundManager;
+    private GameSettings gameSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,64 +27,120 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initializeViews();
-        initializeAudio();
+        initializeGame();
         setupListeners();
-        updateProgress();
+        updateUI();
     }
 
     private void initializeViews() {
         startButton = findViewById(R.id.startButton);
         continueButton = findViewById(R.id.continueButton);
+        difficultyButton = findViewById(R.id.difficultyButton);
         progressText = findViewById(R.id.progressText);
+        difficultyText = findViewById(R.id.difficultyText);
         progressBar = findViewById(R.id.progressBar);
-        prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
     }
 
-    private void initializeAudio() {
+    private void initializeGame() {
+        gameSettings = new GameSettings(this);
         soundManager = new SoundManager(this);
-        // Iniciar música de fondo al abrir la app
+        prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
+
+        // Start background music
         soundManager.startBackgroundMusic();
     }
 
     private void setupListeners() {
         startButton.setOnClickListener(v -> {
-            // Sonido de éxito al iniciar
             soundManager.playSuccess();
-
-            // Reset progress for new game
-            prefs.edit().clear().apply();
-            startGame();
+            showDifficultySelection(true); // true = new game
         });
 
         continueButton.setOnClickListener(v -> {
             soundManager.playSuccess();
             startGame();
         });
+
+        difficultyButton.setOnClickListener(v -> {
+            soundManager.playSuccess();
+            showDifficultySelection(false); // false = just changing difficulty
+        });
     }
 
-    private void updateProgress() {
-        int completedChallenges = prefs.getInt("completed_challenges", 0);
-        int totalChallenges = 10;
+    private void showDifficultySelection(boolean isNewGame) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_difficulty_selection);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
+        LinearLayout beginnerLevel = dialog.findViewById(R.id.beginnerLevel);
+        LinearLayout intermediateLevel = dialog.findViewById(R.id.intermediateLevel);
+        LinearLayout advancedLevel = dialog.findViewById(R.id.advancedLevel);
+        Button cancelButton = dialog.findViewById(R.id.cancelButton);
+
+        beginnerLevel.setOnClickListener(v -> {
+            selectDifficulty(DifficultyLevel.BEGINNER, isNewGame);
+            dialog.dismiss();
+        });
+
+        intermediateLevel.setOnClickListener(v -> {
+            selectDifficulty(DifficultyLevel.INTERMEDIATE, isNewGame);
+            dialog.dismiss();
+        });
+
+        advancedLevel.setOnClickListener(v -> {
+            selectDifficulty(DifficultyLevel.ADVANCED, isNewGame);
+            dialog.dismiss();
+        });
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void selectDifficulty(DifficultyLevel difficulty, boolean isNewGame) {
+        gameSettings.setDifficulty(difficulty);
+
+        if (isNewGame) {
+            // Reset progress for new game
+            prefs.edit().clear().apply();
+            startGame();
+        }
+
+        updateUI();
+    }
+
+    private void updateUI() {
+        DifficultyLevel currentDifficulty = gameSettings.getDifficulty();
+        int completedChallenges = prefs.getInt("completed_challenges", 0);
+        int totalChallenges = gameSettings.getTotalChallenges();
+
+        // Update progress bar
         progressBar.setMax(totalChallenges);
         progressBar.setProgress(completedChallenges);
-        progressText.setText("Progreso: " + completedChallenges + "/" + totalChallenges + " desafíos completados");
 
+        // Update progress text
+        progressText.setText("Progress: " + completedChallenges + "/" + totalChallenges + " challenges completed");
+
+        // Update difficulty display
+        difficultyText.setText("Current Level: " + currentDifficulty.getDisplayName());
+
+        // Show/hide continue button
         continueButton.setVisibility(completedChallenges > 0 ? View.VISIBLE : View.GONE);
     }
 
     private void startGame() {
         Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra("difficulty", gameSettings.getDifficulty().name());
         startActivity(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Reanudar música si regresamos a esta activity
         if (soundManager != null) {
             soundManager.resumeBackgroundMusic();
         }
+        updateUI(); // Refresh UI when returning from game
     }
 
     @Override
