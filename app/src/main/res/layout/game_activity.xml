@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:background="#F8F9FA">
 
-    <!-- Header -->
+    <!-- Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
             android:id="@+id/challengeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Título del Desafío"
+            android:text="🚀 Code Challenge Master!"
             android:textSize="22sp"
             android:textColor="@android:color/white"
             android:textStyle="bold"/>
@@ -26,21 +26,21 @@
             android:id="@+id/challengeDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Descripción del desafío"
+            android:text="Crack the code and unlock hidden picture pieces!"
             android:textSize="16sp"
             android:textColor="@android:color/white"
             android:layout_marginTop="8dp"/>
 
     </LinearLayout>
 
-    <!-- Game Area -->
+    <!-- Main Game Area -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <!-- Coding Challenge -->
+        <!-- Coding Challenge Panel -->
         <es.nellagames.codequestadventure.CodeChallengeView
             android:id="@+id/challengeView"
             android:layout_width="0dp"
@@ -49,7 +49,7 @@
             android:background="@android:color/white"
             android:layout_margin="4dp"/>
 
-        <!-- Hidden Picture -->
+        <!-- Hidden Picture Panel -->
         <es.nellagames.codequestadventure.HiddenPictureView
             android:id="@+id/pictureView"
             android:layout_width="0dp"
@@ -60,7 +60,7 @@
 
     </LinearLayout>
 
-    <!-- Bottom Controls -->
+    <!-- Bottom Control Panel -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -74,11 +74,12 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="✅ Verificar Respuesta"
+            android:text="✅ Check Answer"
             android:textSize="16sp"
             android:backgroundTint="#4CAF50"
             android:textColor="@android:color/white"
             android:layout_marginEnd="8dp"
+            android:textAllCaps="false"
             style="@style/Widget.AppCompat.Button"/>
 
         <Button
@@ -86,12 +87,13 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="➡️ Siguiente Desafío"
+            android:text="➡️ Next Challenge"
             android:textSize="16sp"
             android:backgroundTint="#FF9800"
             android:textColor="@android:color/white"
             android:layout_marginStart="8dp"
             android:visibility="gone"
+            android:textAllCaps="false"
             style="@style/Widget.AppCompat.Button"/>
 
     </LinearLayout>
