@@ -40,8 +40,7 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-
-        <!-- Hidden Picture Panel - BOTTOM -->
+        <!-- Hidden Picture Panel - TOP -->
         <es.nellagames.codequestadventure.HiddenPictureView
             android:id="@+id/pictureView"
             android:layout_width="match_parent"
@@ -50,8 +49,7 @@
             android:background="#E8EAF6"
             android:layout_margin="4dp"/>
 
-
-        <!-- Coding Challenge Panel - TOP -->
+        <!-- Coding Challenge Panel - BOTTOM -->
         <es.nellagames.codequestadventure.CodeChallengeView
             android:id="@+id/challengeView"
             android:layout_width="match_parent"
@@ -60,43 +58,44 @@
             android:background="@android:color/white"
             android:layout_margin="4dp"/>
 
-
     </LinearLayout>
 
-    <!-- Bottom Control Panel -->
+    <!-- Bottom Control Panel - MODERADAMENTE AGRANDADO -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:padding="18dp"
         android:gravity="center"
         android:background="#FFFFFF">
 
         <Button
             android:id="@+id/submitButton"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="68dp"
             android:layout_weight="1"
             android:text="✅ Check Answer"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:backgroundTint="#4CAF50"
             android:textColor="@android:color/white"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="10dp"
             android:textAllCaps="false"
+            android:elevation="4dp"
             style="@style/Widget.AppCompat.Button"/>
 
         <Button
             android:id="@+id/nextButton"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="68dp"
             android:layout_weight="1"
             android:text="➡️ Next Challenge"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:backgroundTint="#FF9800"
             android:textColor="@android:color/white"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:visibility="gone"
             android:textAllCaps="false"
+            android:elevation="4dp"
             style="@style/Widget.AppCompat.Button"/>
 
     </LinearLayout>

@@ -15,8 +15,51 @@ import android.view.View;
 import es.nellagames.codequestadventure.R;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class HiddenPictureView extends View {
+
+    // Hidden image resources array
+    private static final int[] HIDDEN_IMAGE_RESOURCES = {
+            R.drawable.bird,
+            R.drawable.cabin,
+            R.drawable.dino,
+            R.drawable.dog,
+            R.drawable.dragon,
+            R.drawable.fox,
+            R.drawable.panda,
+            R.drawable.play,
+            R.drawable.robot,
+            R.drawable.unicorn
+    };
+
+    // English names for the images
+    private static final String[] HIDDEN_IMAGE_NAMES = {
+            "🐦 Bird",
+            "🏠 Cabin",
+            "🦕 Dinosaur",
+            "🐕 Dog",
+            "🐉 Dragon",
+            "🦊 Fox",
+            "🐼 Panda",
+            "🎮 Play",
+            "🤖 Robot",
+            "🦄 Unicorn"
+    };
+
+    // Descriptions for each image
+    private static final String[] HIDDEN_IMAGE_DESCRIPTIONS = {
+            "A beautiful little bird singing",
+            "A cozy cabin in the woods",
+            "A friendly dinosaur",
+            "A playful dog",
+            "A magical dragon",
+            "A clever fox",
+            "A cute panda eating bamboo",
+            "Fun and games",
+            "A smart robot",
+            "A magical unicorn with a shining horn"
+    };
 
     private Bitmap hiddenPicture;
     private Bitmap maskBitmap;
@@ -25,6 +68,10 @@ public class HiddenPictureView extends View {
     private List<RectF> puzzlePieces;
     private int revealedPieces = 0;
     private int totalPieces = 10;
+    private int currentImageResource;
+    private String currentImageName;
+    private String currentImageDescription;
+    private Random random;
 
     public HiddenPictureView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -32,8 +79,13 @@ public class HiddenPictureView extends View {
     }
 
     private void initializeView() {
-        // Create image programmatically (no file needed)
-        createHiddenPicture();
+        random = new Random();
+
+        // Select a random image
+        selectRandomImage();
+
+        // Load the selected image
+        loadHiddenPicture();
 
         // Initialize paints
         revealPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -56,8 +108,38 @@ public class HiddenPictureView extends View {
         puzzlePieces = new ArrayList<>();
     }
 
-    private void createHiddenPicture() {
-        // Create 400x400 pixels bitmap
+    private void selectRandomImage() {
+        int index = random.nextInt(HIDDEN_IMAGE_RESOURCES.length);
+        currentImageResource = HIDDEN_IMAGE_RESOURCES[index];
+        currentImageName = HIDDEN_IMAGE_NAMES[index];
+        currentImageDescription = HIDDEN_IMAGE_DESCRIPTIONS[index];
+    }
+
+    private void loadHiddenPicture() {
+        try {
+            // Load the drawable image
+            Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), currentImageResource);
+
+            if (originalBitmap != null) {
+                // Scale to desired size (400x400)
+                hiddenPicture = Bitmap.createScaledBitmap(originalBitmap, 400, 400, true);
+
+                // Recycle original if different
+                if (originalBitmap != hiddenPicture) {
+                    originalBitmap.recycle();
+                }
+            } else {
+                // Fallback: create programmatic image if drawable fails
+                createFallbackPicture();
+            }
+        } catch (Exception e) {
+            // Error loading drawable, create fallback
+            createFallbackPicture();
+        }
+    }
+
+    private void createFallbackPicture() {
+        // Create 400x400 pixels bitmap as fallback
         hiddenPicture = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888);
         Canvas tempCanvas = new Canvas(hiddenPicture);
 
@@ -66,53 +148,26 @@ public class HiddenPictureView extends View {
         backgroundPaint.setColor(Color.parseColor("#E8F5E8"));
         tempCanvas.drawRect(0, 0, 400, 400, backgroundPaint);
 
-        // Draw friendly robot
-        Paint robotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        // Draw simple fallback image (smiley face)
+        Paint fallbackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        // Robot head
-        robotPaint.setColor(Color.parseColor("#4A90E2"));
-        tempCanvas.drawRoundRect(new RectF(120, 80, 280, 200), 20, 20, robotPaint);
+        // Face
+        fallbackPaint.setColor(Color.parseColor("#FFD700"));
+        tempCanvas.drawCircle(200, 200, 150, fallbackPaint);
 
-        // Robot body
-        robotPaint.setColor(Color.parseColor("#8E7CC3"));
-        tempCanvas.drawRoundRect(new RectF(100, 200, 300, 350), 15, 15, robotPaint);
-
-        // Robot eyes
-        robotPaint.setColor(Color.WHITE);
-        tempCanvas.drawCircle(160, 130, 20, robotPaint); // left eye
-        tempCanvas.drawCircle(240, 130, 20, robotPaint); // right eye
-
-        // Pupils
-        robotPaint.setColor(Color.BLACK);
-        tempCanvas.drawCircle(160, 130, 10, robotPaint);
-        tempCanvas.drawCircle(240, 130, 10, robotPaint);
+        // Eyes
+        fallbackPaint.setColor(Color.BLACK);
+        tempCanvas.drawCircle(160, 160, 20, fallbackPaint);
+        tempCanvas.drawCircle(240, 160, 20, fallbackPaint);
 
         // Smile
-        robotPaint.setColor(Color.parseColor("#D4AF37"));
-        robotPaint.setStyle(Paint.Style.STROKE);
-        robotPaint.setStrokeWidth(6f);
-        RectF smileRect = new RectF(170, 140, 230, 180);
-        tempCanvas.drawArc(smileRect, 0, 180, false, robotPaint);
+        fallbackPaint.setStyle(Paint.Style.STROKE);
+        fallbackPaint.setStrokeWidth(8f);
+        RectF smileRect = new RectF(140, 180, 260, 250);
+        tempCanvas.drawArc(smileRect, 0, 180, false, fallbackPaint);
 
-        // Arms
-        robotPaint.setColor(Color.parseColor("#4A90E2"));
-        robotPaint.setStyle(Paint.Style.FILL);
-        tempCanvas.drawRoundRect(new RectF(60, 220, 100, 280), 10, 10, robotPaint); // left arm
-        tempCanvas.drawRoundRect(new RectF(300, 220, 340, 280), 10, 10, robotPaint); // right arm
-
-        // Legs
-        tempCanvas.drawRoundRect(new RectF(130, 350, 170, 380), 8, 8, robotPaint); // left leg
-        tempCanvas.drawRoundRect(new RectF(230, 350, 270, 380), 8, 8, robotPaint); // right leg
-
-        // Decorative details
-        robotPaint.setColor(Color.parseColor("#D4AF37"));
-        tempCanvas.drawCircle(200, 250, 8, robotPaint); // central button
-        tempCanvas.drawRect(180, 280, 220, 290, robotPaint); // panel
-
-        // Antennae
-        robotPaint.setColor(Color.parseColor("#FF6B6B"));
-        tempCanvas.drawRect(195, 60, 205, 80, robotPaint); // antenna
-        tempCanvas.drawCircle(200, 55, 8, robotPaint); // antenna ball
+        currentImageName = "🎁 Mystery Image";
+        currentImageDescription = "A special surprise image";
     }
 
     @Override
@@ -164,6 +219,14 @@ public class HiddenPictureView extends View {
         }
     }
 
+    public void newRandomImage() {
+        selectRandomImage();
+        loadHiddenPicture();
+        revealedPieces = 0;
+        updateMask();
+        invalidate();
+    }
+
     private void updateMask() {
         if (maskCanvas == null || puzzlePieces.isEmpty()) return;
 
@@ -207,24 +270,73 @@ public class HiddenPictureView extends View {
             }
         }
 
-        // Draw progress text
-        String progressText = "🖼️ Image: " + revealedPieces + "/" + totalPieces;
-        canvas.drawText(progressText, getWidth() / 2f, getHeight() - 30, textPaint);
+        // Draw progress text with image name
+        String progressText = currentImageName + ": " + revealedPieces + "/" + totalPieces;
+        canvas.drawText(progressText, getWidth() / 2f, getHeight() - 50, textPaint);
 
         // Draw completion message
         if (revealedPieces >= totalPieces) {
             Paint completePaint = new Paint(textPaint);
-            completePaint.setTextSize(36);
+            completePaint.setTextSize(32);
             completePaint.setColor(Color.parseColor("#FFD700"));
             canvas.drawText("IMAGE COMPLETE! 🎉", getWidth() / 2f, 50, completePaint);
+
+            // Draw description
+            Paint descPaint = new Paint(textPaint);
+            descPaint.setTextSize(20);
+            descPaint.setColor(Color.parseColor("#4CAF50"));
+            canvas.drawText(currentImageDescription, getWidth() / 2f, getHeight() - 20, descPaint);
         }
     }
 
+    // Public methods for external access
     public int getRevealedPieces() {
         return revealedPieces;
     }
 
     public boolean isComplete() {
         return revealedPieces >= totalPieces;
+    }
+
+    public String getCurrentImageName() {
+        return currentImageName;
+    }
+
+    public String getCurrentImageDescription() {
+        return currentImageDescription;
+    }
+
+    public int getCurrentImageResource() {
+        return currentImageResource;
+    }
+
+    public void resetPuzzle() {
+        revealedPieces = 0;
+        updateMask();
+        invalidate();
+    }
+
+    // Static helper methods
+    public static int getRandomHiddenImage() {
+        Random rand = new Random();
+        return HIDDEN_IMAGE_RESOURCES[rand.nextInt(HIDDEN_IMAGE_RESOURCES.length)];
+    }
+
+    public static String getImageName(int resourceId) {
+        for (int i = 0; i < HIDDEN_IMAGE_RESOURCES.length; i++) {
+            if (HIDDEN_IMAGE_RESOURCES[i] == resourceId) {
+                return HIDDEN_IMAGE_NAMES[i];
+            }
+        }
+        return "🎁 Mystery Image";
+    }
+
+    public static String getImageDescription(int resourceId) {
+        for (int i = 0; i < HIDDEN_IMAGE_RESOURCES.length; i++) {
+            if (HIDDEN_IMAGE_RESOURCES[i] == resourceId) {
+                return HIDDEN_IMAGE_DESCRIPTIONS[i];
+            }
+        }
+        return "A special image waiting to be discovered";
     }
 }

@@ -36,7 +36,7 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.game_activity);
+        setContentView(R.layout.activity_game);
 
         initializeViews();
         setupGame();
@@ -53,6 +53,10 @@ public class GameActivity extends AppCompatActivity {
 
         // Initially hide next button
         nextButton.setVisibility(View.GONE);
+
+        // Setup button listeners
+        submitButton.setOnClickListener(v -> checkAnswer());
+        nextButton.setOnClickListener(v -> nextChallenge());
     }
 
     private void setupGame() {
@@ -74,10 +78,9 @@ public class GameActivity extends AppCompatActivity {
         // Load current progress
         currentChallengeIndex = prefs.getInt("current_challenge", 0);
 
-        // ✅ DO NOT start music here - already running from MainActivity
-        // Setup button listeners
-        submitButton.setOnClickListener(v -> checkAnswer());
-        nextButton.setOnClickListener(v -> nextChallenge());
+        // Initialize picture view with current progress
+        int completedChallenges = prefs.getInt("completed_challenges", 0);
+        pictureView.revealPieces(completedChallenges);
     }
 
     private void loadCurrentChallenge() {
@@ -88,10 +91,19 @@ public class GameActivity extends AppCompatActivity {
             challengeDescription.setText(currentChallenge.getDescription());
             challengeView.setChallenge(currentChallenge);
 
-            // Update picture view with current progress
-            int completedChallenges = prefs.getInt("completed_challenges", 0);
-            pictureView.revealPieces(completedChallenges);
+            // Update UI for current challenge state
+            updateChallengeUI();
         }
+    }
+
+    private void updateChallengeUI() {
+        // Reset button states
+        submitButton.setVisibility(View.VISIBLE);
+        nextButton.setVisibility(View.GONE);
+
+        // Update progress text if needed
+        int totalChallenges = gameSettings.getTotalChallenges();
+        challengeTitle.setText(challengeTitle.getText() + " (" + (currentChallengeIndex + 1) + "/" + totalChallenges + ")");
     }
 
     private void checkAnswer() {
@@ -110,12 +122,25 @@ public class GameActivity extends AppCompatActivity {
                     .putInt("current_challenge", currentChallengeIndex + 1)
                     .apply();
 
-            // Reveal picture piece
+            // Reveal next picture piece
             pictureView.revealNextPiece();
 
-            // Show success message with explanation
-            Toast.makeText(this, "Correct! 🎉 " + currentChallenge.getExplanation(),
-                    Toast.LENGTH_LONG).show();
+            // Get current image info for enhanced feedback
+            String imageName = pictureView.getCurrentImageName();
+            String imageDescription = pictureView.getCurrentImageDescription();
+
+            // Show success message with image information
+            String successMessage = "Correct! 🎉\n" + currentChallenge.getExplanation();
+
+            if (pictureView.isComplete()) {
+                successMessage += "\n\n🖼️ Image Complete: " + imageName + "\n" + imageDescription;
+                // Load new random image for next set of challenges
+                pictureView.newRandomImage();
+            } else {
+                successMessage += "\n\n🧩 Piece revealed! Keep going to see: " + imageName;
+            }
+
+            Toast.makeText(this, successMessage, Toast.LENGTH_LONG).show();
 
             // Update UI
             submitButton.setVisibility(View.GONE);
@@ -124,13 +149,22 @@ public class GameActivity extends AppCompatActivity {
             // Check if all challenges completed for current difficulty
             int totalChallenges = gameSettings.getTotalChallenges();
             if (completedChallenges >= totalChallenges) {
-                nextButton.setText("Complete Adventure! 🏆");
+                nextButton.setText("🏆 Complete Adventure!");
+            } else {
+                nextButton.setText("➡️ Next Challenge");
             }
+
         } else {
             // ❌ Incorrect answer
             soundManager.playError();
-            Toast.makeText(this, "Try again! Think step by step 🤔",
-                    Toast.LENGTH_SHORT).show();
+
+            // Show hint based on current challenge
+            String hintMessage = "Try again! 🤔";
+            if (currentChallenge != null && currentChallenge.getHint() != null) {
+                hintMessage += "\n💡 Hint: " + currentChallenge.getHint();
+            }
+
+            Toast.makeText(this, hintMessage, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -153,27 +187,36 @@ public class GameActivity extends AppCompatActivity {
         // Play victory sound
         soundManager.playVictory();
 
-        // Get current difficulty for completion message
+        // Get current difficulty and image info for completion message
         DifficultyLevel currentDifficulty = gameSettings.getDifficulty();
-        String completionMessage = "Congratulations! You've completed " +
-                currentDifficulty.getDisplayName() + " level! 🎉🏆";
+        String imageName = pictureView.getCurrentImageName();
+
+        String completionMessage = "🎉 Congratulations! 🎉\n\n" +
+                "You've completed " + currentDifficulty.getDisplayName() + " level!\n\n" +
+                "🖼️ Final Image: " + imageName + "\n" +
+                pictureView.getCurrentImageDescription();
 
         Toast.makeText(this, completionMessage, Toast.LENGTH_LONG).show();
 
         // Optional: play game over sound after victory
         new android.os.Handler().postDelayed(() -> {
             soundManager.playGameOver();
-        }, 2000); // 2 seconds delay
+        }, 3000); // 3 seconds delay for longer message
 
-        // Return to main menu
-        finish();
+        // Save completion achievement
+        prefs.edit()
+                .putBoolean("completed_" + currentDifficulty.name().toLowerCase(), true)
+                .putLong("completion_time_" + currentDifficulty.name().toLowerCase(), System.currentTimeMillis())
+                .apply();
+
+        // Return to main menu after delay
+        new android.os.Handler().postDelayed(this::finish, 5000);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // ✅ Music continues automatically because it's a service
-        // ✅ DO NOT call resumeBackgroundMusic() here
+        // Music continues automatically because it's a service
     }
 
     @Override
@@ -196,10 +239,10 @@ public class GameActivity extends AppCompatActivity {
             soundManager.release();
         }
 
-        // ✅ DO NOT stop background music here so it continues in MainActivity
+        // DO NOT stop background music here so it continues in MainActivity
     }
 
-    // Getter methods for testing or debugging
+    // Public methods for external access
     public int getCurrentChallengeIndex() {
         return currentChallengeIndex;
     }
@@ -210,5 +253,35 @@ public class GameActivity extends AppCompatActivity {
 
     public int getTotalChallenges() {
         return gameSettings != null ? gameSettings.getTotalChallenges() : 10;
+    }
+
+    public String getCurrentImageName() {
+        return pictureView != null ? pictureView.getCurrentImageName() : "Unknown";
+    }
+
+    public boolean isPictureComplete() {
+        return pictureView != null && pictureView.isComplete();
+    }
+
+    public int getRevealedPieces() {
+        return pictureView != null ? pictureView.getRevealedPieces() : 0;
+    }
+
+    // Method to reset game progress (for testing or new game)
+    public void resetProgress() {
+        if (prefs != null) {
+            prefs.edit()
+                    .putInt("current_challenge", 0)
+                    .putInt("completed_challenges", 0)
+                    .apply();
+        }
+
+        if (pictureView != null) {
+            pictureView.resetPuzzle();
+            pictureView.newRandomImage();
+        }
+
+        currentChallengeIndex = 0;
+        loadCurrentChallenge();
     }
 }
