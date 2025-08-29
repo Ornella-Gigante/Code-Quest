@@ -88,7 +88,33 @@
         android:textColor="@android:color/white"
         android:visibility="gone"
         android:textAllCaps="false"
-        android:elevation="4dp"/>
+        android:elevation="4dp"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Difficulty Selection Button -->
+    <Button
+        android:id="@+id/difficultyButton"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:text="⚙️ Change Difficulty"
+        android:textSize="16sp"
+        android:backgroundTint="#9C27B0"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp"
+        android:textAllCaps="false"
+        android:elevation="2dp"/>
+
+    <!-- Difficulty Display Text -->
+    <TextView
+        android:id="@+id/difficultyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Level: 🌱 Beginner"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:gravity="center"/>
 
     <!-- Additional Information -->
     <TextView
@@ -97,7 +123,7 @@
         android:text="10 challenges • Hidden Picture • Basic Java"
         android:textSize="14sp"
         android:textColor="#888888"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:textAlignment="center"
         android:gravity="center"/>
 
