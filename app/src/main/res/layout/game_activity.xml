@@ -3,100 +3,176 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F9FA">
+    android:background="#F5F5F5">
 
     <!-- Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@drawable/header_gradient">
+        android:padding="24dp"
+        android:background="#6366F1">
 
         <TextView
             android:id="@+id/challengeTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="🚀 Code Challenge Master!"
-            android:textSize="22sp"
+            android:textSize="28sp"
             android:textColor="@android:color/white"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
 
         <TextView
             android:id="@+id/challengeDescription"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Crack the code and unlock hidden picture pieces!"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textColor="#E0E7FF"
+            android:gravity="center"
             android:layout_marginTop="8dp"/>
 
     </LinearLayout>
 
-    <!-- Main Game Area - VERTICAL SPLIT -->
+    <!-- Main Content Area with proper weights -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <!-- Hidden Picture Panel - TOP -->
-        <es.nellagames.codequestadventure.HiddenPictureView
-            android:id="@+id/pictureView"
+        <!-- Hidden Picture Panel with fallback -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="#E8EAF6"
-            android:layout_margin="4dp"/>
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:elevation="6dp"
+            android:layout_marginBottom="16dp"
+            android:padding="16dp">
 
-        <!-- Coding Challenge Panel - BOTTOM -->
-        <es.nellagames.codequestadventure.CodeChallengeView
-            android:id="@+id/challengeView"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🖼️ Hidden Picture Puzzle"
+                android:textSize="18sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="8dp"
+                android:textStyle="bold"/>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#E8EAF6">
+
+                <!-- Custom View -->
+                <es.nellagames.codequestadventure.HiddenPictureView
+                    android:id="@+id/pictureView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+                <!-- Fallback placeholder -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="🧩 Picture pieces will appear here\nas you solve challenges!"
+                    android:textSize="16sp"
+                    android:textColor="#999999"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp"/>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- Coding Challenge Panel with fallback -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@android:color/white"
-            android:layout_margin="4dp"/>
+            android:layout_weight="3"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:elevation="6dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💻 Code Challenge"
+                android:textSize="18sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="8dp"
+                android:textStyle="bold"/>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FAFAFA">
+
+                <!-- Custom View -->
+                <es.nellagames.codequestadventure.CodeChallengeView
+                    android:id="@+id/challengeView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+                <!-- Fallback placeholder -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="#999999"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp"/>
+
+            </FrameLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Bottom Control Panel - MODERADAMENTE AGRANDADO -->
+    <!-- Bottom Controls -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="18dp"
-        android:gravity="center"
-        android:background="#FFFFFF">
+        android:padding="24dp"
+        android:background="#FFFFFF"
+        android:elevation="8dp">
 
         <Button
             android:id="@+id/submitButton"
             android:layout_width="0dp"
-            android:layout_height="68dp"
+            android:layout_height="64dp"
             android:layout_weight="1"
             android:text="✅ Check Answer"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:backgroundTint="#4CAF50"
             android:textColor="@android:color/white"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="12dp"
             android:textAllCaps="false"
             android:elevation="4dp"
-            style="@style/Widget.AppCompat.Button"/>
+            android:fontFamily="sans-serif-medium"/>
 
         <Button
             android:id="@+id/nextButton"
             android:layout_width="0dp"
-            android:layout_height="68dp"
+            android:layout_height="64dp"
             android:layout_weight="1"
             android:text="➡️ Next Challenge"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:backgroundTint="#FF9800"
             android:textColor="@android:color/white"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="12dp"
             android:visibility="gone"
             android:textAllCaps="false"
             android:elevation="4dp"
-            style="@style/Widget.AppCompat.Button"/>
+            android:fontFamily="sans-serif-medium"/>
 
     </LinearLayout>
 
