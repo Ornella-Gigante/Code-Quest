@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import es.nellagames.codequestadventure.R;
+
 public class TutorialActivity extends AppCompatActivity {
 
     private TextView tutorialText;

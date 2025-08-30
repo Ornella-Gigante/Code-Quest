@@ -1,27 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="#F5F5F5">
+    android:gravity="center"
+    tools:context=".TutorialActivity">
 
     <TextView
         android:id="@+id/tutorialText"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="Welcome!"
         android:textSize="24sp"
-        android:textColor="#333333"
+        android:textColor="@android:color/white"
         android:gravity="center"
-        android:text="Welcome to CodeQuestAdventure!"
-        android:lineSpacingExtra="8dp" />
+        android:padding="16dp"
+        android:maxLines="5" />
+
+    <ImageView
+        android:id="@+id/tutorialImage"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_marginTop="16dp"
+        android:contentDescription="Tutorial Illustration"
+        android:scaleType="fitCenter" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_marginTop="24dp">
 
         <Button
             android:id="@+id/prevButton"
@@ -29,15 +40,13 @@
             android:layout_height="wrap_content"
             android:text="Back"
             android:visibility="gone"
-            android:layout_margin="8dp" />
+            android:layout_marginEnd="16dp"/>
 
         <Button
             android:id="@+id/nextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Next"
-            android:layout_margin="8dp" />
+            android:text="Next" />
 
     </LinearLayout>
-
 </LinearLayout>
