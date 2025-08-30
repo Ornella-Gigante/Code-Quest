@@ -134,6 +134,7 @@
 
         </LinearLayout>
 
+
     </LinearLayout>
 
     <!-- Bottom Controls -->
@@ -141,20 +142,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="24dp"
+        android:padding="12dp"
         android:background="#FFFFFF"
         android:elevation="8dp">
+
+        <!-- Back to Main Menu Button -->
+        <Button
+            android:id="@+id/backToMenuButton"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="⬅️ Back to Main Menu"
+            android:textSize="16sp"
+            android:backgroundTint="#607D8B"
+            android:textColor="@android:color/white"
+            android:layout_marginEnd="8dp"
+            android:textAllCaps="false"
+            android:elevation="3dp"
+            android:fontFamily="sans-serif-medium"/>
 
         <Button
             android:id="@+id/submitButton"
             android:layout_width="0dp"
-            android:layout_height="64dp"
+            android:layout_height="52dp"
             android:layout_weight="1"
             android:text="✅ Check Answer"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:backgroundTint="#4CAF50"
             android:textColor="@android:color/white"
-            android:layout_marginEnd="12dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:textAllCaps="false"
             android:elevation="4dp"
             android:fontFamily="sans-serif-medium"/>
@@ -162,13 +179,13 @@
         <Button
             android:id="@+id/nextButton"
             android:layout_width="0dp"
-            android:layout_height="64dp"
+            android:layout_height="52dp"
             android:layout_weight="1"
             android:text="➡️ Next Challenge"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:backgroundTint="#FF9800"
             android:textColor="@android:color/white"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="8dp"
             android:visibility="gone"
             android:textAllCaps="false"
             android:elevation="4dp"
