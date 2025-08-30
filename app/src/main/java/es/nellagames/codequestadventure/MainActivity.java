@@ -89,6 +89,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void launchTutorial() {
+        Intent intent = new Intent(this, TutorialActivity.class);
+        startActivity(intent);
+    }
+
+
     private void showDifficultySelection(boolean isNewGame) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_difficulty_selection);
