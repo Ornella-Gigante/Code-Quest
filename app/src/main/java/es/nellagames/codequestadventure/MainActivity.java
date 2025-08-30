@@ -10,6 +10,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.widget.LinearLayout;
+import es.nellagames.codequestadventure.GameActivity;
+import es.nellagames.codequestadventure.GameSettings;
+import es.nellagames.codequestadventure.SoundManager;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -17,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private Button startButton, continueButton, difficultyButton;
     private TextView progressText, difficultyText;
     private ProgressBar progressBar;
+    private Button backToMenuButton; // Added Back to Menu Button
     private SharedPreferences prefs;
     private SoundManager soundManager;
     private GameSettings gameSettings;
@@ -29,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         initializeViews();
         initializeGame();
         setupListeners();
+        setupBackToMenuListener();  // Setup listener for Back to Menu Button
         updateUI();
     }
 
@@ -39,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         progressText = findViewById(R.id.progressText);
         difficultyText = findViewById(R.id.difficultyText);
         progressBar = findViewById(R.id.progressBar);
+        backToMenuButton = findViewById(R.id.backToMenuButton);  // Initialize Back to Menu Button
     }
 
     private void initializeGame() {
@@ -65,6 +71,22 @@ public class MainActivity extends AppCompatActivity {
             soundManager.playSuccess();
             showDifficultySelection(false); // false = just changing difficulty
         });
+    }
+
+    private void setupBackToMenuListener() {
+        if(backToMenuButton != null) {
+            backToMenuButton.setOnClickListener(v -> {
+                // Optional: play sound on click
+                if(soundManager != null) {
+                    soundManager.playSuccess();
+                }
+                // Start Main Activity - back to main menu
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
     }
 
     private void showDifficultySelection(boolean isNewGame) {
@@ -140,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         if (soundManager != null) {
             soundManager.resumeBackgroundMusic();
         }
-        updateUI(); // Refresh UI when returning from game
+        updateUI();
     }
 
     @Override
