@@ -10,17 +10,16 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.widget.LinearLayout;
+
 import es.nellagames.codequestadventure.GameActivity;
 import es.nellagames.codequestadventure.GameSettings;
 import es.nellagames.codequestadventure.SoundManager;
 
-
 public class MainActivity extends AppCompatActivity {
 
-    private Button startButton, continueButton, difficultyButton;
+    private Button startButton, continueButton, difficultyButton, tutorialButton; // Agregado tutorialButton
     private TextView progressText, difficultyText;
     private ProgressBar progressBar;
-    private Button backToMenuButton; // Added Back to Menu Button
     private SharedPreferences prefs;
     private SoundManager soundManager;
     private GameSettings gameSettings;
@@ -33,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
         initializeViews();
         initializeGame();
         setupListeners();
-        setupBackToMenuListener();  // Setup listener for Back to Menu Button
         updateUI();
     }
 
@@ -41,10 +39,10 @@ public class MainActivity extends AppCompatActivity {
         startButton = findViewById(R.id.startButton);
         continueButton = findViewById(R.id.continueButton);
         difficultyButton = findViewById(R.id.difficultyButton);
+        tutorialButton = findViewById(R.id.tutorialButton); // Inicializando tutorialButton
         progressText = findViewById(R.id.progressText);
         difficultyText = findViewById(R.id.difficultyText);
         progressBar = findViewById(R.id.progressBar);
-        backToMenuButton = findViewById(R.id.backToMenuButton);  // Initialize Back to Menu Button
     }
 
     private void initializeGame() {
@@ -52,14 +50,13 @@ public class MainActivity extends AppCompatActivity {
         soundManager = new SoundManager(this);
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
-        // Start background music
         soundManager.startBackgroundMusic();
     }
 
     private void setupListeners() {
         startButton.setOnClickListener(v -> {
             soundManager.playSuccess();
-            showDifficultySelection(true); // true = new game
+            showDifficultySelection(true);
         });
 
         continueButton.setOnClickListener(v -> {
@@ -69,31 +66,18 @@ public class MainActivity extends AppCompatActivity {
 
         difficultyButton.setOnClickListener(v -> {
             soundManager.playSuccess();
-            showDifficultySelection(false); // false = just changing difficulty
+            showDifficultySelection(false);
+        });
+
+        tutorialButton.setOnClickListener(v -> {
+            if (soundManager != null) {
+                soundManager.playSuccess();
+            }
+            // Lanzar TutorialActivity
+            Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
+            startActivity(intent);
         });
     }
-
-    private void setupBackToMenuListener() {
-        if(backToMenuButton != null) {
-            backToMenuButton.setOnClickListener(v -> {
-                // Optional: play sound on click
-                if(soundManager != null) {
-                    soundManager.playSuccess();
-                }
-                // Start Main Activity - back to main menu
-                Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-    }
-
-    private void launchTutorial() {
-        Intent intent = new Intent(this, TutorialActivity.class);
-        startActivity(intent);
-    }
-
 
     private void showDifficultySelection(boolean isNewGame) {
         Dialog dialog = new Dialog(this);
@@ -129,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
         gameSettings.setDifficulty(difficulty);
 
         if (isNewGame) {
-            // Reset progress for new game
             prefs.edit().clear().apply();
             startGame();
         }
@@ -138,22 +121,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        DifficultyLevel currentDifficulty = gameSettings.getDifficulty();
-        int completedChallenges = prefs.getInt("completed_challenges", 0);
-        int totalChallenges = gameSettings.getTotalChallenges();
+        DifficultyLevel difficulty = gameSettings.getDifficulty();
+        int completed = prefs.getInt("completed_challenges", 0);
+        int total = gameSettings.getTotalChallenges();
 
-        // Update progress bar
-        progressBar.setMax(totalChallenges);
-        progressBar.setProgress(completedChallenges);
+        progressBar.setMax(total);
+        progressBar.setProgress(completed);
 
-        // Update progress text
-        progressText.setText("Progress: " + completedChallenges + "/" + totalChallenges + " challenges completed");
+        progressText.setText("Progress: " + completed + "/" + total + " challenges completed");
+        difficultyText.setText("Current Level: " + difficulty.getDisplayName());
 
-        // Update difficulty display
-        difficultyText.setText("Current Level: " + currentDifficulty.getDisplayName());
-
-        // Show/hide continue button
-        continueButton.setVisibility(completedChallenges > 0 ? View.VISIBLE : View.GONE);
+        continueButton.setVisibility(completed > 0 ? View.VISIBLE : View.GONE);
     }
 
     private void startGame() {
