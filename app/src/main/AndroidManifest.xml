@@ -36,6 +36,12 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <!-- TutorialActivity - Tutorial -->
+        <activity
+            android:name=".TutorialActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <!-- Servicio de música de fondo persistente -->
         <service
             android:name="MusicService"
