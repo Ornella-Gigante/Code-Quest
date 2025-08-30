@@ -1,5 +1,6 @@
 package es.nellagames.codequestadventure;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -181,6 +182,16 @@ public class GameActivity extends AppCompatActivity {
             nextButton.setVisibility(View.GONE);
             loadCurrentChallenge();
         }
+
+        Button backToMenuButton = findViewById(R.id.backToMenuButton);
+        backToMenuButton.setOnClickListener(v -> {
+            // Optional: soundManager.playSuccess();
+            Intent intent = new Intent(GameActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
+
     }
 
     private void showCompletionScreen() {
