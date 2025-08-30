@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -105,7 +104,7 @@ public class CodeChallengeView extends View {
         Paint titlePaint = new Paint(textPaint);
         titlePaint.setTextSize(32);
         titlePaint.setColor(Color.parseColor("#2E7D32"));
-        canvas.drawText("Completa este código:", getWidth() / 2f, 60, titlePaint);
+        canvas.drawText("Complete this code:", getWidth() / 2f, 60, titlePaint);
 
         // Draw incomplete code with placeholder
         String displayCode = challenge.getIncompleteCode();
@@ -127,14 +126,14 @@ public class CodeChallengeView extends View {
             Paint hintPaint = new Paint(textPaint);
             hintPaint.setTextSize(28);
             hintPaint.setColor(Color.parseColor("#666666"));
-            canvas.drawText("Arrastra aquí", dropZone.centerX(), dropZone.centerY() + 10, hintPaint);
+            canvas.drawText("Drag here", dropZone.centerX(), dropZone.centerY() + 10, hintPaint);
         }
 
         // Draw instructions
         Paint instructPaint = new Paint(textPaint);
         instructPaint.setTextSize(24);
         instructPaint.setColor(Color.parseColor("#555555"));
-        canvas.drawText("Arrastra la respuesta correcta al espacio vacío:",
+        canvas.drawText("Drag the correct answer onto the blank:",
                 getWidth() / 2f, getHeight() * 0.5f, instructPaint);
 
         // Draw code blocks
@@ -145,7 +144,7 @@ public class CodeChallengeView extends View {
         }
 
         // Draw dragged block last (on top)
-        if (draggedBlock != null && draggedBlock != null) {
+        if (draggedBlock != null) {
             drawCodeBlock(canvas, draggedBlock);
         }
     }
