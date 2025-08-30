@@ -339,4 +339,13 @@ public class HiddenPictureView extends View {
         }
         return "A special image waiting to be discovered";
     }
+
+    public void newRandom() {
+    }
+
+    public String getCurrentDescription() {
+    }
+
+    public String getCurrentName() {
+    }
 }
