@@ -17,14 +17,14 @@ public class SoundManager {
 
     private void initializeSounds() {
         try {
-            // ✅ SOLUCIÓN: Usar un archivo diferente para el sonido de éxito
-            // ❌ ANTES: successPlayer = MediaPlayer.create(context, R.raw.game_sound);
+            // Carga del sonido de éxito con el recurso correcto (asegúrate que exists en res/raw/success.mp3)
+            successPlayer = MediaPlayer.create(context, R.raw.correct);
+
             errorPlayer = MediaPlayer.create(context, R.raw.error);
             victoryPlayer = MediaPlayer.create(context, R.raw.victory);
             gameOverPlayer = MediaPlayer.create(context, R.raw.game_over);
-            successPlayer = MediaPlayer.create(context, R.raw.victory); // <- aquí
 
-            // Configurar volúmenes
+            // Configuración de volumen
             if (successPlayer != null) successPlayer.setVolume(0.8f, 0.8f);
             if (errorPlayer != null) errorPlayer.setVolume(0.7f, 0.7f);
             if (victoryPlayer != null) victoryPlayer.setVolume(0.9f, 0.9f);
@@ -34,7 +34,6 @@ public class SoundManager {
             e.printStackTrace();
         }
     }
-
 
     public void playSuccess() {
         playSound(successPlayer);
@@ -52,7 +51,7 @@ public class SoundManager {
         playSound(gameOverPlayer);
     }
 
-    // ✅ Método centralizado para reproducir sonidos
+    // Método centralizado para reproducir sonidos
     private void playSound(MediaPlayer player) {
         if (soundEnabled && player != null) {
             try {
@@ -67,7 +66,7 @@ public class SoundManager {
         }
     }
 
-    // ✅ Control de música de fondo - Solo iniciar si no está corriendo
+    // Controles para la música de fondo
     public void startBackgroundMusic() {
         if (!MusicService.isRunning()) {
             MusicService.startBackgroundMusic(context);
