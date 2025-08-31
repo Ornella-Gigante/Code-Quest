@@ -22,6 +22,7 @@ public class SoundManager {
             errorPlayer = MediaPlayer.create(context, R.raw.error);
             victoryPlayer = MediaPlayer.create(context, R.raw.victory);
             gameOverPlayer = MediaPlayer.create(context, R.raw.game_over);
+            successPlayer = MediaPlayer.create(context, R.raw.victory); // <- aquí
 
             // Configurar volúmenes
             if (successPlayer != null) successPlayer.setVolume(0.8f, 0.8f);
@@ -33,6 +34,7 @@ public class SoundManager {
             e.printStackTrace();
         }
     }
+
 
     public void playSuccess() {
         playSound(successPlayer);
