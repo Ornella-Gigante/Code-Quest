@@ -30,7 +30,7 @@ public class HiddenPictureView extends View {
     private Paint revealPaint, coverPaint, gridPaint, borderPaint, textPaint;
     private List<RectF> puzzlePieces = new ArrayList<>();
     private int revealedPieces = 0;
-    private int totalPieces = 10;
+    private int totalPieces = 10; // SIEMPRE 10 piezas
     private int currentImageResource;
     private String currentImageName;
     private String currentImageDescription;
@@ -103,14 +103,14 @@ public class HiddenPictureView extends View {
     private void createPuzzlePieces(int w, int h) {
         puzzlePieces.clear();
 
-        // Crear piezas basadas en el número total configurado
-        int cols = (int) Math.ceil(Math.sqrt(totalPieces));
-        int rows = (int) Math.ceil((double) totalPieces / cols);
+        // SIEMPRE crear exactamente 10 piezas en una cuadrícula 2x5 o 5x2
+        int cols = 5;
+        int rows = 2;
 
         float pieceWidth = (float) w / cols;
         float pieceHeight = (float) h / rows;
 
-        for (int i = 0; i < totalPieces; i++) {
+        for (int i = 0; i < 10; i++) { // Exactamente 10 piezas
             int row = i / cols;
             int col = i % cols;
 
@@ -125,7 +125,7 @@ public class HiddenPictureView extends View {
 
     public void revealPieces(int count) {
         if (count < 0) count = 0;
-        if (count > totalPieces) count = totalPieces;
+        if (count > 10) count = 10; // Máximo 10 piezas
 
         revealedPieces = count;
         updateMask();
@@ -168,15 +168,16 @@ public class HiddenPictureView extends View {
     }
 
     public int getTotalPieces() {
-        return totalPieces;
+        return 10; // SIEMPRE 10 piezas
     }
 
     public void setTotalPieces(int totalPieces) {
-        this.totalPieces = totalPieces;
+        // Ignorar el parámetro, siempre usar 10
+        this.totalPieces = 10;
 
-        // Si el número de piezas reveladas excede el nuevo total, ajustarlo
-        if (revealedPieces > totalPieces) {
-            revealedPieces = totalPieces;
+        // Si el número de piezas reveladas excede 10, ajustarlo
+        if (revealedPieces > 10) {
+            revealedPieces = 10;
         }
 
         // Recrear las piezas si ya tenemos dimensiones
@@ -192,7 +193,7 @@ public class HiddenPictureView extends View {
     }
 
     public boolean isComplete() {
-        return revealedPieces >= totalPieces;
+        return revealedPieces >= 10; // Completado cuando se revelan las 10 piezas
     }
 
     // Método para reiniciar completamente la vista

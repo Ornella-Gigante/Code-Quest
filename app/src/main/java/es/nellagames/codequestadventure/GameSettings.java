@@ -19,7 +19,7 @@ public class GameSettings {
     public GameSettings(Context context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         loadSettings();
-        totalChallenges = getDefaultTotalChallenges();
+        totalChallenges = 10; // SIEMPRE 10 desafíos
     }
 
     private void loadSettings() {
@@ -32,28 +32,20 @@ public class GameSettings {
     public void setDifficulty(DifficultyLevel difficulty) {
         this.currentDifficulty = difficulty;
         prefs.edit().putString(KEY_DIFFICULTY, difficulty.name()).apply();
-        totalChallenges = getDefaultTotalChallenges();
+        totalChallenges = 10; // SIEMPRE 10 desafíos independientemente de la dificultad
     }
 
     public DifficultyLevel getDifficulty() {
         return currentDifficulty;
     }
 
-    private int getDefaultTotalChallenges() {
-        switch (currentDifficulty) {
-            case BEGINNER: return 6;
-            case INTERMEDIATE: return 10;
-            case ADVANCED: return 16;
-            default: return 10;
-        }
-    }
-
     public void setTotalChallenges(int total) {
-        totalChallenges = total;
+        // Ignorar el parámetro, siempre usar 10
+        totalChallenges = 10;
     }
 
     public int getTotalChallenges() {
-        return totalChallenges;
+        return 10; // SIEMPRE 10 desafíos
     }
 
     public void setHintsEnabled(boolean enabled) {
@@ -75,12 +67,7 @@ public class GameSettings {
     }
 
     public int getPuzzlePieces() {
-        switch (currentDifficulty) {
-            case BEGINNER: return 6;
-            case INTERMEDIATE: return 10;
-            case ADVANCED: return 16;
-            default: return 10;
-        }
+        return 10; // SIEMPRE 10 piezas
     }
 
     public int getTimeLimit() {

@@ -6,46 +6,47 @@ public class Challenge {
     private int id;
     private String title;
     private String description;
-    private String incompleteCode;
-    private List<String> codeOptions;
+    private String codeSnippet;
+    private List<String> options;
     private String correctAnswer;
-    private String explanation;
-    private String hint;  // ✅ NEW: Added hint field
+    private String hint; // Hint en inglés para respuestas incorrectas
+    private String correctExplanation; // Explicación para respuestas correctas
 
-    // ✅ UPDATED: Constructor now includes hint parameter
-    public Challenge(int id, String title, String description, String incompleteCode,
-                     List<String> codeOptions, String correctAnswer, String explanation, String hint) {
+    public Challenge(int id, String title, String description, String codeSnippet,
+                     List<String> options, String correctAnswer, String hint, String correctExplanation) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.incompleteCode = incompleteCode;
-        this.codeOptions = codeOptions;
+        this.codeSnippet = codeSnippet;
+        this.options = options;
         this.correctAnswer = correctAnswer;
-        this.explanation = explanation;
-        this.hint = hint;  // ✅ Initialize hint field
+        this.hint = hint;
+        this.correctExplanation = correctExplanation;
     }
 
-    // Getters and setters
+    // Getters
     public int getId() { return id; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
-    public String getIncompleteCode() { return incompleteCode; }
-    public List<String> getCodeOptions() { return codeOptions; }
+    public String getCodeSnippet() { return codeSnippet; }
+    public List<String> getOptions() { return options; }
     public String getCorrectAnswer() { return correctAnswer; }
-    public String getExplanation() { return explanation; }
-    public String getHint() { return hint; }  // ✅ NEW: Added getHint() method
+    public String getHint() { return hint; }
+    public String getCorrectExplanation() { return correctExplanation; }
 
+    // Método para verificar si la respuesta es correcta
     public boolean isCorrect(String answer) {
-        return correctAnswer.equals(answer);
+        if (answer == null || correctAnswer == null) return false;
+        return correctAnswer.trim().equalsIgnoreCase(answer.trim());
     }
 
-    // ✅ Optional: Method to check if hint is available
-    public boolean hasHint() {
-        return hint != null && !hint.trim().isEmpty();
+    // Método para obtener las opciones de código (alias de getOptions)
+    public List<String> getCodeOptions() {
+        return options;
     }
 
-    // ✅ Optional: Setter for hint (if needed for dynamic updates)
-    public void setHint(String hint) {
-        this.hint = hint;
+    // Método para obtener el código incompleto (alias de getCodeSnippet)
+    public String getIncompleteCode() {
+        return codeSnippet;
     }
 }
