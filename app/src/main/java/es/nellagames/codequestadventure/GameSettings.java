@@ -1,10 +1,7 @@
 package es.nellagames.codequestadventure;
 
-
-
 import android.content.Context;
 import android.content.SharedPreferences;
-import es.nellagames.codequestadventure.DifficultyLevel;
 
 public class GameSettings {
 
@@ -17,15 +14,17 @@ public class GameSettings {
     private DifficultyLevel currentDifficulty;
     private boolean hintsEnabled;
     private boolean soundEnabled;
+    private int totalChallenges;  // <-- campo para controlar total
 
     public GameSettings(Context context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         loadSettings();
+        totalChallenges = getDefaultTotalChallenges();
     }
 
     private void loadSettings() {
-        String difficultyStr = prefs.getString(KEY_DIFFICULTY, DifficultyLevel.BEGINNER.name());
-        currentDifficulty = DifficultyLevel.fromString(difficultyStr);
+        String diffStr = prefs.getString(KEY_DIFFICULTY, DifficultyLevel.BEGINNER.name());
+        currentDifficulty = DifficultyLevel.fromString(diffStr);
         hintsEnabled = prefs.getBoolean(KEY_HINTS_ENABLED, true);
         soundEnabled = prefs.getBoolean(KEY_SOUND_ENABLED, true);
     }
@@ -33,14 +32,31 @@ public class GameSettings {
     public void setDifficulty(DifficultyLevel difficulty) {
         this.currentDifficulty = difficulty;
         prefs.edit().putString(KEY_DIFFICULTY, difficulty.name()).apply();
+        totalChallenges = getDefaultTotalChallenges(); // reset total on difficulty change
     }
 
     public DifficultyLevel getDifficulty() {
         return currentDifficulty;
     }
 
+    // Default total challenges based on difficulty
+    private int getDefaultTotalChallenges() {
+        switch (currentDifficulty) {
+            case BEGINNER: return 6;
+            case INTERMEDIATE: return 10;
+            case ADVANCED: return 16;
+            default: return 10;
+        }
+    }
+
+    // Allow setting total challenges externally (e.g., to sync with puzzle pieces)
+    public void setTotalChallenges(int total) {
+        totalChallenges = total;
+    }
+
+    // Provide current total challenges
     public int getTotalChallenges() {
-        return currentDifficulty.getTotalChallenges();
+        return totalChallenges;
     }
 
     public void setHintsEnabled(boolean enabled) {
@@ -61,8 +77,8 @@ public class GameSettings {
         return soundEnabled;
     }
 
+    // Return number of puzzle pieces based on difficulty
     public int getPuzzlePieces() {
-        // More pieces for higher difficulty
         switch (currentDifficulty) {
             case BEGINNER: return 6;
             case INTERMEDIATE: return 10;
@@ -72,11 +88,10 @@ public class GameSettings {
     }
 
     public int getTimeLimit() {
-        // Time limit per challenge in seconds (0 = no limit)
         switch (currentDifficulty) {
-            case BEGINNER: return 0; // No time limit
-            case INTERMEDIATE: return 120; // 2 minutes
-            case ADVANCED: return 60; // 1 minute
+            case BEGINNER: return 0;
+            case INTERMEDIATE: return 120;
+            case ADVANCED: return 60;
             default: return 0;
         }
     }
