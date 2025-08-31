@@ -301,4 +301,7 @@ public class HiddenPictureView extends View {
         updateMask();
         invalidate();
     }
+
+    public int getTotalPieces() {
+    }
 }

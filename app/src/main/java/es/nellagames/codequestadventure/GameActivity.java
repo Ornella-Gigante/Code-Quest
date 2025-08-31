@@ -15,7 +15,7 @@ public class GameActivity extends AppCompatActivity {
     private TextView challengeTitle, challengeDescription;
     private CodeChallengeView challengeView;
     private HiddenPictureView pictureView;
-    private Button submitButton, nextButton, backToMenuButton; // Added backToMenuButton
+    private Button submitButton, nextButton, backToMenuButton;
 
     private GameLogic gameLogic;
     private SoundManager soundManager;
@@ -33,8 +33,7 @@ public class GameActivity extends AppCompatActivity {
         initializeViews();
         setupGame();
         loadCurrentChallenge();
-
-        setupBackMenuListener(); // Setup listener for back to menu button
+        setupBackMenuListener();
     }
 
     private void initializeViews() {
@@ -46,10 +45,7 @@ public class GameActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.nextButton);
         backToMenuButton = findViewById(R.id.backToMenuButton);
 
-        // Initially hide next button
         nextButton.setVisibility(Button.GONE);
-
-        // Set up other button listeners
         submitButton.setOnClickListener(v -> checkAnswer());
         nextButton.setOnClickListener(v -> nextChallenge());
     }
@@ -57,9 +53,7 @@ public class GameActivity extends AppCompatActivity {
     private void setupBackMenuListener() {
         if (backToMenuButton != null) {
             backToMenuButton.setOnClickListener(v -> {
-                if (soundManager != null) {
-                    soundManager.playSuccess();
-                }
+                if (soundManager != null) soundManager.playSuccess();
                 Intent intent = new Intent(GameActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
@@ -70,7 +64,6 @@ public class GameActivity extends AppCompatActivity {
 
     private void setupGame() {
         gameSettings = new GameSettings(this);
-
         String difficultyStr = getIntent().getStringExtra("difficulty");
         if (difficultyStr != null) {
             DifficultyLevel difficulty = DifficultyLevel.fromString(difficultyStr);
@@ -82,7 +75,6 @@ public class GameActivity extends AppCompatActivity {
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
         currentChallengeIndex = prefs.getInt("current_challenge", 0);
-
         int progress = prefs.getInt("completed_challenges", 0);
         pictureView.revealPieces(progress);
     }
@@ -98,7 +90,6 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void updateChallengeUI() {
-        // Reset button states
         submitButton.setVisibility(Button.VISIBLE);
         nextButton.setVisibility(Button.GONE);
 
@@ -110,9 +101,7 @@ public class GameActivity extends AppCompatActivity {
         String userAnswer = challengeView.getUserAnswer();
 
         if (currentChallenge != null && currentChallenge.isCorrect(userAnswer)) {
-            // Solo sonido de éxito cuando la opción es correcta
             soundManager.playSuccess();
-
             int completed = prefs.getInt("completed_challenges", 0) + 1;
 
             prefs.edit().putInt("completed_challenges", completed)
@@ -126,22 +115,25 @@ public class GameActivity extends AppCompatActivity {
 
             String message = "Correct! 🎉\n" + currentChallenge.getExplanation();
 
-            if (pictureView.isComplete()) {
-                message += "\n\nImage Complete: " + imageName + "\n" + imageDescription;
-                pictureView.newRandom();
-            } else {
-                message += "\n\nPiece revealed! Keep going to see: " + imageName;
-            }
-
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-
-            submitButton.setVisibility(Button.GONE);
-            nextButton.setVisibility(Button.VISIBLE);
-
             int total = gameSettings.getTotalChallenges();
-            nextButton.setText(completed >= total ? "🏆 Complete Adventure!" : "➡️ Next Challenge");
+
+            // Si completó el último reto, revela toda la imagen antes de terminar
+            if (completed >= total) {
+                revealFullImageAndShowCongrats();
+            } else {
+                if (pictureView.isComplete()) {
+                    message += "\n\nImage Complete: " + imageName + "\n" + imageDescription;
+                    pictureView.newRandom();
+                } else {
+                    message += "\n\nPiece revealed! Keep going to see: " + imageName;
+                }
+
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                submitButton.setVisibility(Button.GONE);
+                nextButton.setVisibility(Button.VISIBLE);
+                nextButton.setText("➡️ Next Challenge");
+            }
         } else {
-            // Sonido error si la respuesta es incorrecta
             soundManager.playError();
             String msg = "Try again! 🤔";
             if (currentChallenge != null && currentChallenge.getHint() != null) {
@@ -149,6 +141,32 @@ public class GameActivity extends AppCompatActivity {
             }
             Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
         }
+    }
+
+    // Revela toda la imagen y muestra felicitación solo después
+    private void revealFullImageAndShowCongrats() {
+        // Revela toda la imagen (color original) antes de acabar
+        pictureView.revealPieces(pictureView.getTotalPieces());
+
+        new android.os.Handler().postDelayed(() -> {
+            soundManager.playVictory();
+
+            String imageName = pictureView.getCurrentName();
+            String imageDescription = pictureView.getCurrentDescription();
+            DifficultyLevel difficulty = gameSettings.getDifficulty();
+
+            String msg = "Congratulations!\nYou've completed " + difficulty.getDisplayName() +
+                    "!\n\nFinal image: " + imageName + "\n" + imageDescription;
+
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+
+            prefs.edit().putBoolean("completed_" + difficulty.name().toLowerCase(), true)
+                    .putLong("completion_time_" + difficulty.name().toLowerCase(), System.currentTimeMillis())
+                    .apply();
+
+            // Espera para que el usuario vea la imagen antes de cerrar la actividad
+            new android.os.Handler().postDelayed(this::finish, 4000);
+        }, 1200); // Tiempo para disfrutar la imagen antes del mensaje final
     }
 
     private void nextChallenge() {
@@ -165,25 +183,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showCompletion() {
-        // El sonido de victoria solo cuando el juego se completa
-        soundManager.playVictory();
-
-        DifficultyLevel difficulty = gameSettings.getDifficulty();
-        String imageName = pictureView.getCurrentName();
-
-        String msg = "Congratulations!\nYou've completed " + difficulty.getDisplayName() +
-                "!\n\nFinal image: " + imageName + "\n" + pictureView.getCurrentDescription();
-
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-
-        // No reproducimos sonido de game over aquí
-        // soundManager.playGameOver(); (removido)
-
-        prefs.edit().putBoolean("completed_" + difficulty.name().toLowerCase(), true)
-                .putLong("completion_time_" + difficulty.name().toLowerCase(), System.currentTimeMillis())
-                .apply();
-
-        new android.os.Handler().postDelayed(this::finish, 5000);
+        // Ahora solo se usa en el flujo alternativo, la animación principal la hace revealFullImageAndShowCongrats()
+        revealFullImageAndShowCongrats();
     }
 
     @Override
@@ -205,18 +206,13 @@ public class GameActivity extends AppCompatActivity {
         if (soundManager != null) soundManager.release();
     }
 
+    // Métodos auxiliares
     public int getCurrentChallengeIndex() { return currentChallengeIndex; }
-
     public DifficultyLevel getCurrentDifficulty() { return gameSettings != null ? gameSettings.getDifficulty() : DifficultyLevel.BEGINNER; }
-
     public int getTotalChallenges() { return gameSettings != null ? gameSettings.getTotalChallenges() : 10; }
-
     public String getCurrentImageName() { return pictureView != null ? pictureView.getCurrentName() : "Unknown"; }
-
     public boolean isPictureComplete() { return pictureView != null && pictureView.isComplete(); }
-
     public int getRevealedPieces() { return pictureView != null ? pictureView.getRevealedPieces() : 0; }
-
     public void resetProgress() {
         if (prefs != null) {
             prefs.edit()
