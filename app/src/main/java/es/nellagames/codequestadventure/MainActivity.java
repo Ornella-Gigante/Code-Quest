@@ -48,13 +48,14 @@ public class MainActivity extends AppCompatActivity {
         soundManager = new SoundManager(this);
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
+        // Iniciar música de fondo
         soundManager.startBackgroundMusic();
     }
 
     private void setupListeners() {
         startButton.setOnClickListener(v -> {
             soundManager.playSuccess();
-            startGame(); // Corrección: iniciar juego directamente sin pedir dificultad
+            startGame();
         });
 
         continueButton.setOnClickListener(v -> {
@@ -76,9 +77,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         resetProgressButton.setOnClickListener(v -> {
+            soundManager.playSuccess();
             prefs.edit()
                     .putInt("current_challenge", 0)
-                    .putInt("completed_challenges", 0)
+                    .putInt("completed_pieces", 0)
+                    .putBoolean("game_completed", false)
                     .apply();
 
             Toast.makeText(MainActivity.this, "Progress reset successfully!", Toast.LENGTH_SHORT).show();
@@ -97,16 +100,19 @@ public class MainActivity extends AppCompatActivity {
         Button cancelButton = dialog.findViewById(R.id.cancelButton);
 
         beginnerLevel.setOnClickListener(v -> {
+            soundManager.playSuccess();
             selectDifficulty(DifficultyLevel.BEGINNER, isNewGame);
             dialog.dismiss();
         });
 
         intermediateLevel.setOnClickListener(v -> {
+            soundManager.playSuccess();
             selectDifficulty(DifficultyLevel.INTERMEDIATE, isNewGame);
             dialog.dismiss();
         });
 
         advancedLevel.setOnClickListener(v -> {
+            soundManager.playSuccess();
             selectDifficulty(DifficultyLevel.ADVANCED, isNewGame);
             dialog.dismiss();
         });
@@ -129,8 +135,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI() {
         DifficultyLevel difficulty = gameSettings.getDifficulty();
-        int completed = prefs.getInt("completed_challenges", 0);
-        int total = gameSettings.getTotalChallenges();
+        int completed = prefs.getInt("completed_pieces", 0); // Cambiado a completed_pieces
+        int total = 10; // Siempre 10 desafíos
 
         progressBar.setMax(total);
         progressBar.setProgress(completed);
@@ -154,6 +160,14 @@ public class MainActivity extends AppCompatActivity {
             soundManager.resumeBackgroundMusic();
         }
         updateUI();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (soundManager != null) {
+            soundManager.pauseBackgroundMusic();
+        }
     }
 
     @Override

@@ -79,21 +79,18 @@ public class GameActivity extends AppCompatActivity {
         pictureView.setTotalPieces(totalPieces);
         gameSettings.setTotalChallenges(totalPieces);
 
-        // ALWAYS START FROM ZERO - No cargar progreso previo
-        // La imagen debe empezar completamente oculta siempre
+        // Reiniciar progreso
         completedPiecesCount = 0;
         currentChallengeIndex = 0;
-
-        // Limpiar cualquier progreso previo
         prefs.edit()
                 .putInt("completed_pieces", 0)
                 .putInt("current_challenge", 0)
                 .putBoolean("game_completed", false)
                 .apply();
 
-        // Asegurar que la imagen esté completamente oculta
+        // Resetear imagen
         pictureView.resetPuzzle();
-        pictureView.revealPieces(0); // FORZAR 0 piezas reveladas
+        pictureView.revealPieces(0);
     }
 
     private void loadCurrentChallenge() {
@@ -121,22 +118,18 @@ public class GameActivity extends AppCompatActivity {
         if (challenge != null && challenge.isCorrect(answer)) {
             soundManager.playSuccess();
 
-            // Mostrar popup de explicación para respuesta correcta
             showCorrectAnswerDialog(challenge.getCorrectExplanation(), () -> {
-                // Incrementar contador de piezas completadas
                 completedPiecesCount++;
                 currentChallengeIndex++;
 
-                // Guardar progreso
                 prefs.edit()
                         .putInt("completed_pieces", completedPiecesCount)
                         .putInt("current_challenge", currentChallengeIndex)
                         .apply();
 
-                // Revelar UNA pieza más de la imagen
                 pictureView.revealPieces(completedPiecesCount);
 
-                if (completedPiecesCount >= 10) { // Siempre 10 desafíos
+                if (completedPiecesCount >= 10) {
                     revealFullImageAndCongrats();
                 } else {
                     Toast.makeText(this, "Correct! Piece " + completedPiecesCount + " revealed!", Toast.LENGTH_LONG).show();
@@ -148,7 +141,6 @@ public class GameActivity extends AppCompatActivity {
         } else {
             soundManager.playError();
 
-            // Mostrar popup con hint para respuesta incorrecta
             String hint = (challenge != null) ? challenge.getHint() : "Try again!";
             showHintDialog(hint);
         }
@@ -176,21 +168,19 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void revealFullImageAndCongrats() {
-        // Asegurar que toda la imagen esté revelada
-        pictureView.revealPieces(10); // Siempre 10 piezas
+        pictureView.revealPieces(10);
 
         new android.os.Handler().postDelayed(() -> {
             soundManager.playVictory();
             Toast.makeText(this, "Congratulations! You revealed the complete picture!", Toast.LENGTH_LONG).show();
             prefs.edit().putBoolean("game_completed", true).apply();
 
-            // Volver al menú después de mostrar la imagen completa
             new android.os.Handler().postDelayed(this::finish, 4000);
         }, 1200);
     }
 
     private void nextChallenge() {
-        if (currentChallengeIndex >= 10) { // Siempre 10 desafíos
+        if (currentChallengeIndex >= 10) {
             showCompletion();
         } else {
             submitButton.setVisibility(Button.VISIBLE);
@@ -213,7 +203,8 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Guardar progreso actual
+        if (soundManager != null) soundManager.pauseBackgroundMusic();
+
         if (prefs != null) {
             prefs.edit()
                     .putInt("current_challenge", currentChallengeIndex)

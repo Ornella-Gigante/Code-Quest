@@ -1,88 +1,67 @@
 package es.nellagames.codequestadventure;
 
 import android.content.Context;
-import android.media.MediaPlayer;
-import es.nellagames.codequestadventure.R;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 
 public class SoundManager {
 
-    private MediaPlayer successPlayer, errorPlayer, victoryPlayer, gameOverPlayer;
+    private SoundPool soundPool;
+    private int successSound, errorSound, victorySound, gameOverSound;
     private boolean soundEnabled = true;
+    private boolean soundsLoaded = false;
     private Context context;
 
     public SoundManager(Context context) {
-        this.context = context;
-        initializeSounds();
+        this.context = context.getApplicationContext(); // asegurar contexto válido
+
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(4)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        // Listener para saber cuándo se cargaron los sonidos
+        soundPool.setOnLoadCompleteListener((sp, sampleId, status) -> {
+            if (status == 0) {
+                soundsLoaded = true;
+            }
+        });
+
+        // Cargar sonidos en memoria
+        successSound = soundPool.load(this.context, R.raw.correct, 1);
+        errorSound = soundPool.load(this.context, R.raw.error, 1);
+        victorySound = soundPool.load(this.context, R.raw.victory, 1);
+        gameOverSound = soundPool.load(this.context, R.raw.game_over, 1);
     }
 
-    private void initializeSounds() {
-        try {
-            // Carga del sonido de éxito con el recurso correcto (asegúrate que exists en res/raw/success.mp3)
-            successPlayer = MediaPlayer.create(context, R.raw.correct);
-
-            errorPlayer = MediaPlayer.create(context, R.raw.error);
-            victoryPlayer = MediaPlayer.create(context, R.raw.victory);
-            gameOverPlayer = MediaPlayer.create(context, R.raw.game_over);
-
-            // Configuración de volumen
-            if (successPlayer != null) successPlayer.setVolume(0.8f, 0.8f);
-            if (errorPlayer != null) errorPlayer.setVolume(0.7f, 0.7f);
-            if (victoryPlayer != null) victoryPlayer.setVolume(0.9f, 0.9f);
-            if (gameOverPlayer != null) gameOverPlayer.setVolume(0.8f, 0.8f);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+    // Métodos para reproducir efectos cortos
     public void playSuccess() {
-        playSound(successPlayer);
+        if (soundEnabled && soundsLoaded) soundPool.play(successSound, 1, 1, 1, 0, 1f);
     }
 
     public void playError() {
-        playSound(errorPlayer);
+        if (soundEnabled && soundsLoaded) soundPool.play(errorSound, 1, 1, 1, 0, 1f);
     }
 
     public void playVictory() {
-        playSound(victoryPlayer);
+        if (soundEnabled && soundsLoaded) soundPool.play(victorySound, 1, 1, 1, 0, 1f);
     }
 
     public void playGameOver() {
-        playSound(gameOverPlayer);
+        if (soundEnabled && soundsLoaded) soundPool.play(gameOverSound, 1, 1, 1, 0, 1f);
     }
 
-    // Método centralizado para reproducir sonidos
-    private void playSound(MediaPlayer player) {
-        if (soundEnabled && player != null) {
-            try {
-                if (player.isPlaying()) {
-                    player.seekTo(0);
-                } else {
-                    player.start();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    // Liberar recursos
+    public void release() {
+        if (soundPool != null) {
+            soundPool.release();
+            soundPool = null;
         }
-    }
-
-    // Controles para la música de fondo
-    public void startBackgroundMusic() {
-        if (!MusicService.isRunning()) {
-            MusicService.startBackgroundMusic(context);
-        }
-    }
-
-    public void pauseBackgroundMusic() {
-        MusicService.pauseBackgroundMusic(context);
-    }
-
-    public void resumeBackgroundMusic() {
-        MusicService.resumeBackgroundMusic(context);
-    }
-
-    public void stopBackgroundMusic() {
-        MusicService.stopBackgroundMusic(context);
     }
 
     public void setSoundEnabled(boolean enabled) {
@@ -93,23 +72,33 @@ public class SoundManager {
         return soundEnabled;
     }
 
-    public void release() {
+    // Música de fondo usando MusicService
+    public void resumeBackgroundMusic() {
         try {
-            if (successPlayer != null) {
-                successPlayer.release();
-                successPlayer = null;
+            if (MusicService.isRunning()) {
+                MusicService.resumeBackgroundMusic(context);
+            } else {
+                MusicService.startBackgroundMusic(context);
             }
-            if (errorPlayer != null) {
-                errorPlayer.release();
-                errorPlayer = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pauseBackgroundMusic() {
+        try {
+            if (MusicService.isRunning()) {
+                MusicService.pauseBackgroundMusic(context);
             }
-            if (victoryPlayer != null) {
-                victoryPlayer.release();
-                victoryPlayer = null;
-            }
-            if (gameOverPlayer != null) {
-                gameOverPlayer.release();
-                gameOverPlayer = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startBackgroundMusic() {
+        try {
+            if (!MusicService.isRunning()) {
+                MusicService.startBackgroundMusic(context);
             }
         } catch (Exception e) {
             e.printStackTrace();
