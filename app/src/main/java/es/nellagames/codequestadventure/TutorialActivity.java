@@ -10,16 +10,16 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import es.nellagames.codequestadventure.R;
-
 public class TutorialActivity extends AppCompatActivity {
 
     private TextView tutorialText;
     private ImageView tutorialImage;
     private Button nextButton, prevButton;
 
+    private SoundManager soundManager;
+
     private String[] pagesText = {
-            "Welcome to CodeQuest Adventure! Let's learn to program step-by-step.",
+            "Welcome to CodeQuest Adventure! " + "Let's learn to program step-by-step.",
             "Drag and drop code blocks to complete the programs. Have fun solving!",
             "Use hints wisely if stuck. Try to solve it by thinking first!",
             "Complete challenges to reveal awesome hidden pictures!",
@@ -54,18 +54,24 @@ public class TutorialActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.nextButton);
         prevButton = findViewById(R.id.prevButton);
 
+        // Inicializar SoundManager y música de fondo
+        soundManager = new SoundManager(this);
+        soundManager.startBackgroundMusic();
+
         updatePage();
 
         nextButton.setOnClickListener(v -> {
+            soundManager.playSuccess(); // sonido al pasar página
             if (currentPage < pagesText.length - 1) {
                 currentPage++;
                 updatePage();
             } else {
-                finish(); // Close tutorial on last page
+                finish(); // Cerrar tutorial en la última página
             }
         });
 
         prevButton.setOnClickListener(v -> {
+            soundManager.playError(); // sonido distinto al retroceder
             if (currentPage > 0) {
                 currentPage--;
                 updatePage();
@@ -90,5 +96,23 @@ public class TutorialActivity extends AppCompatActivity {
         // Update navigation buttons
         prevButton.setVisibility(currentPage == 0 ? View.GONE : View.VISIBLE);
         nextButton.setText(currentPage == pagesText.length - 1 ? "Finish" : "Next");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (soundManager != null) soundManager.resumeBackgroundMusic();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (soundManager != null) soundManager.pauseBackgroundMusic();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (soundManager != null) soundManager.release();
     }
 }
