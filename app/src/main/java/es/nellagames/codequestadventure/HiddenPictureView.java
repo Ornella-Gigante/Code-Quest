@@ -159,11 +159,14 @@ public class HiddenPictureView extends View {
             // Aplicar la máscara que oculta las partes no reveladas
             canvas.drawBitmap(maskBitmap, 0, 0, null);
 
-            // Dibujar líneas de la cuadrícula solo en las partes reveladas
+            // OPCIONAL: Dibujar líneas sutiles de la cuadrícula solo en las partes reveladas
+            // Comentado para mostrar la imagen sin filtros verdes
+            /*
             for (int i = 0; i < revealedPieces && i < puzzlePieces.size(); i++) {
                 RectF piece = puzzlePieces.get(i);
                 canvas.drawRect(piece, gridPaint);
             }
+            */
         }
     }
 
