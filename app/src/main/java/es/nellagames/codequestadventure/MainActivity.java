@@ -7,17 +7,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.widget.LinearLayout;
 
-import es.nellagames.codequestadventure.GameActivity;
-import es.nellagames.codequestadventure.GameSettings;
-import es.nellagames.codequestadventure.SoundManager;
-
 public class MainActivity extends AppCompatActivity {
 
-    private Button startButton, continueButton, difficultyButton, tutorialButton; // Agregado tutorialButton
+    private Button startButton, continueButton, difficultyButton, tutorialButton, resetProgressButton; // <-- Nuevo botón
     private TextView progressText, difficultyText;
     private ProgressBar progressBar;
     private SharedPreferences prefs;
@@ -39,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
         startButton = findViewById(R.id.startButton);
         continueButton = findViewById(R.id.continueButton);
         difficultyButton = findViewById(R.id.difficultyButton);
-        tutorialButton = findViewById(R.id.tutorialButton); // Inicializando tutorialButton
+        tutorialButton = findViewById(R.id.tutorialButton);
+        resetProgressButton = findViewById(R.id.resetProgressButton); // Inicializar botón reset
         progressText = findViewById(R.id.progressText);
         difficultyText = findViewById(R.id.difficultyText);
         progressBar = findViewById(R.id.progressBar);
@@ -73,9 +71,19 @@ public class MainActivity extends AppCompatActivity {
             if (soundManager != null) {
                 soundManager.playSuccess();
             }
-            // Lanzar TutorialActivity
             Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
             startActivity(intent);
+        });
+
+        resetProgressButton.setOnClickListener(v -> {
+            // Reiniciar progreso guardado
+            prefs.edit()
+                    .putInt("current_challenge", 0)
+                    .putInt("completed_challenges", 0)
+                    .apply();
+
+            Toast.makeText(MainActivity.this, "Progress reset successfully!", Toast.LENGTH_SHORT).show();
+            updateUI();
         });
     }
 

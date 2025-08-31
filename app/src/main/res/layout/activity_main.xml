@@ -97,7 +97,7 @@
             android:textAllCaps="false"
             android:elevation="8dp"/>
 
-        <!-- NEW Tutorial Button -->
+        <!-- Tutorial Button -->
         <Button
             android:id="@+id/tutorialButton"
             android:layout_width="320dp"
@@ -118,6 +118,20 @@
             android:text="⚙️ Change Difficulty"
             android:textSize="20sp"
             android:backgroundTint="#9C27B0"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="false"
+            android:elevation="6dp"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Reset Progress Button -->
+        <Button
+            android:id="@+id/resetProgressButton"
+            android:layout_width="320dp"
+            android:layout_height="64dp"
+            android:text="🔄 Reset Progress"
+            android:textSize="20sp"
+            android:backgroundTint="#f44336"
             android:textColor="#FFFFFF"
             android:fontFamily="sans-serif-medium"
             android:textAllCaps="false"
@@ -146,6 +160,5 @@
             android:gravity="center"
             android:layout_marginTop="12dp"
             android:maxWidth="480dp"/>
-
     </LinearLayout>
 </ScrollView>
