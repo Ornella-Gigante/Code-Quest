@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button startButton, continueButton, difficultyButton, tutorialButton, resetProgressButton; // <-- Nuevo botón
+    private Button startButton, continueButton, difficultyButton, tutorialButton, resetProgressButton;
     private TextView progressText, difficultyText;
     private ProgressBar progressBar;
     private SharedPreferences prefs;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         continueButton = findViewById(R.id.continueButton);
         difficultyButton = findViewById(R.id.difficultyButton);
         tutorialButton = findViewById(R.id.tutorialButton);
-        resetProgressButton = findViewById(R.id.resetProgressButton); // Inicializar botón reset
+        resetProgressButton = findViewById(R.id.resetProgressButton);
         progressText = findViewById(R.id.progressText);
         difficultyText = findViewById(R.id.difficultyText);
         progressBar = findViewById(R.id.progressBar);
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupListeners() {
         startButton.setOnClickListener(v -> {
             soundManager.playSuccess();
-            showDifficultySelection(true);
+            startGame(); // Corrección: iniciar juego directamente sin pedir dificultad
         });
 
         continueButton.setOnClickListener(v -> {
@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         resetProgressButton.setOnClickListener(v -> {
-            // Reiniciar progreso guardado
             prefs.edit()
                     .putInt("current_challenge", 0)
                     .putInt("completed_challenges", 0)

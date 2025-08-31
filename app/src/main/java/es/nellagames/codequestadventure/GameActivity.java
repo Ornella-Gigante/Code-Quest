@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class GameActivity extends AppCompatActivity {
 
-    // UI Components
     private TextView challengeTitle, challengeDescription;
     private CodeChallengeView challengeView;
     private HiddenPictureView pictureView;
@@ -24,6 +23,7 @@ public class GameActivity extends AppCompatActivity {
 
     private Challenge currentChallenge;
     private int currentChallengeIndex = 0;
+    private int completedPiecesCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +53,7 @@ public class GameActivity extends AppCompatActivity {
     private void setupBackMenuListener() {
         if (backToMenuButton != null) {
             backToMenuButton.setOnClickListener(v -> {
-                if (soundManager != null) {
-                    soundManager.playSuccess();
-                }
+                if (soundManager != null) soundManager.playSuccess();
                 Intent intent = new Intent(GameActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
@@ -77,8 +75,8 @@ public class GameActivity extends AppCompatActivity {
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
         currentChallengeIndex = prefs.getInt("current_challenge", 0);
-        int progress = prefs.getInt("completed_challenges", 0);
-        pictureView.revealPieces(progress);
+        completedPiecesCount = prefs.getInt("completed_challenges", 0);
+        pictureView.revealPieces(completedPiecesCount);
     }
 
     private void loadCurrentChallenge() {
@@ -105,24 +103,23 @@ public class GameActivity extends AppCompatActivity {
         if (currentChallenge != null && currentChallenge.isCorrect(userAnswer)) {
             soundManager.playSuccess();
 
-            int completed = prefs.getInt("completed_challenges", 0) + 1;
+            completedPiecesCount++;
+            currentChallengeIndex++;
 
             prefs.edit()
-                    .putInt("completed_challenges", completed)
-                    .putInt("current_challenge", currentChallengeIndex + 1)
+                    .putInt("completed_challenges", completedPiecesCount)
+                    .putInt("current_challenge", currentChallengeIndex)
                     .apply();
 
-            // Revela progresivamente una pieza más por cada respuesta correcta
-            pictureView.revealPieces(completed);
+            pictureView.revealPieces(completedPiecesCount);
 
             String imageName = pictureView.getCurrentName();
             String imageDescription = pictureView.getCurrentDescription();
-
             String message = "Correct! 🎉\n" + currentChallenge.getExplanation();
 
             int total = gameSettings.getTotalChallenges();
 
-            if (completed >= total) {
+            if (completedPiecesCount >= total) {
                 revealFullImageAndShowCongrats();
             } else {
                 if (pictureView.isComplete()) {
@@ -147,7 +144,6 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    // Revela la imagen completa antes de mostrar mensaje final y cerrar
     private void revealFullImageAndShowCongrats() {
         pictureView.revealPieces(pictureView.getTotalPieces());
 
@@ -173,9 +169,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void nextChallenge() {
-        currentChallengeIndex++;
         int total = gameSettings.getTotalChallenges();
-
         if (currentChallengeIndex >= total) {
             showCompletion();
         } else {
@@ -199,7 +193,12 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (prefs != null) prefs.edit().putInt("current_challenge", currentChallengeIndex).apply();
+        if (prefs != null){
+            prefs.edit()
+                    .putInt("current_challenge", currentChallengeIndex)
+                    .putInt("completed_challenges", completedPiecesCount)
+                    .apply();
+        }
     }
 
     @Override
@@ -208,7 +207,6 @@ public class GameActivity extends AppCompatActivity {
         if (soundManager != null) soundManager.release();
     }
 
-    // Auxiliares públicos
     public int getCurrentChallengeIndex() {
         return currentChallengeIndex;
     }
@@ -245,6 +243,7 @@ public class GameActivity extends AppCompatActivity {
             pictureView.newRandom();
         }
         currentChallengeIndex = 0;
+        completedPiecesCount = 0;
         loadCurrentChallenge();
     }
 }
