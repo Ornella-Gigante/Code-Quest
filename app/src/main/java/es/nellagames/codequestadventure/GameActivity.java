@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,7 +21,6 @@ public class GameActivity extends AppCompatActivity {
     private GameSettings gameSettings;
     private SharedPreferences prefs;
 
-    private Challenge currentChallenge;
     private int currentChallengeIndex = 0;
     private int completedPiecesCount = 0;
 
@@ -33,7 +32,7 @@ public class GameActivity extends AppCompatActivity {
         initializeViews();
         setupGame();
         loadCurrentChallenge();
-        setupBackMenuListener();
+        setupBackListener();
     }
 
     private void initializeViews() {
@@ -50,11 +49,11 @@ public class GameActivity extends AppCompatActivity {
         nextButton.setOnClickListener(v -> nextChallenge());
     }
 
-    private void setupBackMenuListener() {
+    private void setupBackListener() {
         if (backToMenuButton != null) {
             backToMenuButton.setOnClickListener(v -> {
                 if (soundManager != null) soundManager.playSuccess();
-                Intent intent = new Intent(GameActivity.this, MainActivity.class);
+                Intent intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 finish();
@@ -64,106 +63,78 @@ public class GameActivity extends AppCompatActivity {
 
     private void setupGame() {
         gameSettings = new GameSettings(this);
-        String difficultyStr = getIntent().getStringExtra("difficulty");
-        if (difficultyStr != null) {
-            DifficultyLevel difficulty = DifficultyLevel.fromString(difficultyStr);
-            gameSettings.setDifficulty(difficulty);
+        String diff = getIntent().getStringExtra("difficulty");
+        if (diff != null) {
+            gameSettings.setDifficulty(DifficultyLevel.fromString(diff));
         }
 
         gameLogic = new GameLogic(gameSettings);
         soundManager = new SoundManager(this);
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
+        // Set the total challenges equal to number of pieces
+        int totalPieces = pictureView.getTotalPieces();
+        gameSettings.setTotalChallenges(totalPieces);
+
         currentChallengeIndex = prefs.getInt("current_challenge", 0);
-        completedPiecesCount = prefs.getInt("completed_challenges", 0);
+        completedPiecesCount = prefs.getInt("completed_pieces", 0);
         pictureView.revealPieces(completedPiecesCount);
     }
 
     private void loadCurrentChallenge() {
-        currentChallenge = gameLogic.getChallenge(currentChallengeIndex);
-        if (currentChallenge != null) {
-            challengeTitle.setText(currentChallenge.getTitle());
-            challengeDescription.setText(currentChallenge.getDescription());
-            challengeView.setChallenge(currentChallenge);
-            updateChallengeUI();
+        var challenge = gameLogic.getChallenge(currentChallengeIndex);
+        if (challenge != null) {
+            challengeTitle.setText(challenge.getTitle());
+            challengeDescription.setText(challenge.getDescription());
+            challengeView.setChallenge(challenge);
+            updateUI();
         }
     }
 
-    private void updateChallengeUI() {
+    private void updateUI() {
         submitButton.setVisibility(Button.VISIBLE);
         nextButton.setVisibility(Button.GONE);
 
         int total = gameSettings.getTotalChallenges();
-        challengeTitle.setText(challengeTitle.getText() + " (" + (currentChallengeIndex + 1) + "/" + total + ")");
+        challengeTitle.setText("Challenge " + (currentChallengeIndex + 1) + " of " + total);
     }
 
     private void checkAnswer() {
-        String userAnswer = challengeView.getUserAnswer();
+        String answer = challengeView.getUserAnswer();
+        var challenge = gameLogic.getChallenge(currentChallengeIndex);
 
-        if (currentChallenge != null && currentChallenge.isCorrect(userAnswer)) {
+        if (challenge != null && challenge.isCorrect(answer)) {
             soundManager.playSuccess();
-
             completedPiecesCount++;
             currentChallengeIndex++;
 
             prefs.edit()
-                    .putInt("completed_challenges", completedPiecesCount)
+                    .putInt("completed_pieces", completedPiecesCount)
                     .putInt("current_challenge", currentChallengeIndex)
                     .apply();
 
             pictureView.revealPieces(completedPiecesCount);
 
-            String imageName = pictureView.getCurrentName();
-            String imageDescription = pictureView.getCurrentDescription();
-            String message = "Correct! 🎉\n" + currentChallenge.getExplanation();
-
-            int total = gameSettings.getTotalChallenges();
-
-            if (completedPiecesCount >= total) {
-                revealFullImageAndShowCongrats();
+            if (completedPiecesCount >= gameSettings.getTotalChallenges()) {
+                revealFullImageAndCongrats();
             } else {
-                if (pictureView.isComplete()) {
-                    message += "\n\nImage Complete: " + imageName + "\n" + imageDescription;
-                    pictureView.newRandom();
-                } else {
-                    message += "\n\nPiece revealed! Keep going to see: " + imageName;
-                }
-
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Correct! Keep going!", Toast.LENGTH_LONG).show();
                 submitButton.setVisibility(Button.GONE);
                 nextButton.setVisibility(Button.VISIBLE);
-                nextButton.setText("➡️ Next Challenge");
+                nextButton.setText("Next");
             }
         } else {
             soundManager.playError();
-            String msg = "Try again! 🤔";
-            if (currentChallenge != null && currentChallenge.getHint() != null) {
-                msg += "\nHint: " + currentChallenge.getHint();
-            }
-            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Try again!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void revealFullImageAndShowCongrats() {
+    private void revealFullImageAndCongrats() {
         pictureView.revealPieces(pictureView.getTotalPieces());
-
         new android.os.Handler().postDelayed(() -> {
             soundManager.playVictory();
-
-            String imageName = pictureView.getCurrentName();
-            String imageDescription = pictureView.getCurrentDescription();
-            DifficultyLevel difficulty = gameSettings.getDifficulty();
-
-            String msg = "Congratulations!\nYou've completed " + difficulty.getDisplayName() +
-                    "!\n\nFinal image: " + imageName + "\n" + imageDescription;
-
-            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-
-            prefs.edit()
-                    .putBoolean("completed_" + difficulty.name().toLowerCase(), true)
-                    .putLong("completion_time_" + difficulty.name().toLowerCase(), System.currentTimeMillis())
-                    .apply();
-
+            Toast.makeText(this, "Congratulations! You completed the game!", Toast.LENGTH_LONG).show();
+            prefs.edit().putBoolean("game_completed", true).apply();
             new android.os.Handler().postDelayed(this::finish, 4000);
         }, 1200);
     }
@@ -180,23 +151,23 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showCompletion() {
-        revealFullImageAndShowCongrats();
+        revealFullImageAndCongrats();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (soundManager != null) soundManager.resumeBackgroundMusic();
-        updateChallengeUI();
+        updateUI();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (prefs != null){
+        if (prefs != null) {
             prefs.edit()
                     .putInt("current_challenge", currentChallengeIndex)
-                    .putInt("completed_challenges", completedPiecesCount)
+                    .putInt("completed_pieces", completedPiecesCount)
                     .apply();
         }
     }
@@ -205,45 +176,5 @@ public class GameActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (soundManager != null) soundManager.release();
-    }
-
-    public int getCurrentChallengeIndex() {
-        return currentChallengeIndex;
-    }
-
-    public DifficultyLevel getCurrentDifficulty() {
-        return gameSettings != null ? gameSettings.getDifficulty() : DifficultyLevel.BEGINNER;
-    }
-
-    public int getTotalChallenges() {
-        return gameSettings != null ? gameSettings.getTotalChallenges() : 10;
-    }
-
-    public String getCurrentImageName() {
-        return pictureView != null ? pictureView.getCurrentName() : "Unknown";
-    }
-
-    public boolean isPictureComplete() {
-        return pictureView != null && pictureView.isComplete();
-    }
-
-    public int getRevealedPieces() {
-        return pictureView != null ? pictureView.getRevealedPieces() : 0;
-    }
-
-    public void resetProgress() {
-        if (prefs != null) {
-            prefs.edit()
-                    .putInt("current_challenge", 0)
-                    .putInt("completed_challenges", 0)
-                    .apply();
-        }
-        if (pictureView != null) {
-            pictureView.resetPuzzle();
-            pictureView.newRandom();
-        }
-        currentChallengeIndex = 0;
-        completedPiecesCount = 0;
-        loadCurrentChallenge();
     }
 }
