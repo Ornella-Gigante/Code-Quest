@@ -23,6 +23,7 @@ public class GameActivity extends AppCompatActivity {
 
     private int currentChallengeIndex = 0;
     private int completedPiecesCount = 0;
+    private boolean isNewGame = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,11 @@ public class GameActivity extends AppCompatActivity {
 
     private void setupGame() {
         gameSettings = new GameSettings(this);
+        prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
+
+        // Verificar si se quiere empezar un juego nuevo
+        isNewGame = getIntent().getBooleanExtra("new_game", false);
+
         String diff = getIntent().getStringExtra("difficulty");
         if (diff != null) {
             gameSettings.setDifficulty(DifficultyLevel.fromString(diff));
@@ -70,14 +76,38 @@ public class GameActivity extends AppCompatActivity {
 
         gameLogic = new GameLogic(gameSettings);
         soundManager = new SoundManager(this);
-        prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
-        // Set the total challenges equal to number of pieces
-        int totalPieces = pictureView.getTotalPieces();
+        // Configurar número de piezas basado en la dificultad
+        int totalPieces = gameSettings.getPuzzlePieces();
+        pictureView.setTotalPieces(totalPieces);
         gameSettings.setTotalChallenges(totalPieces);
 
-        currentChallengeIndex = prefs.getInt("current_challenge", 0);
-        completedPiecesCount = prefs.getInt("completed_pieces", 0);
+        // Si es un juego nuevo, resetear todo el progreso
+        if (isNewGame) {
+            completedPiecesCount = 0;
+            currentChallengeIndex = 0;
+            prefs.edit()
+                    .putInt("completed_pieces", 0)
+                    .putInt("current_challenge", 0)
+                    .putBoolean("game_completed", false)
+                    .apply();
+            pictureView.resetPuzzle(); // Resetear la imagen también
+        } else {
+            // Cargar progreso existente solo si no es juego nuevo
+            completedPiecesCount = prefs.getInt("completed_pieces", 0);
+            currentChallengeIndex = prefs.getInt("current_challenge", 0);
+
+            // Validar que el progreso no exceda los límites actuales
+            if (completedPiecesCount > totalPieces) {
+                completedPiecesCount = 0;
+                currentChallengeIndex = 0;
+            }
+            if (currentChallengeIndex >= gameLogic.getTotalChallenges()) {
+                currentChallengeIndex = 0;
+            }
+        }
+
+        // Aplicar el progreso a la imagen (0 si es juego nuevo)
         pictureView.revealPieces(completedPiecesCount);
     }
 
@@ -105,36 +135,46 @@ public class GameActivity extends AppCompatActivity {
 
         if (challenge != null && challenge.isCorrect(answer)) {
             soundManager.playSuccess();
-            completedPiecesCount++;
+
+            // Solo incrementar si aún no hemos completado este desafío
+            if (currentChallengeIndex >= completedPiecesCount) {
+                completedPiecesCount++;
+            }
             currentChallengeIndex++;
 
+            // Guardar progreso
             prefs.edit()
                     .putInt("completed_pieces", completedPiecesCount)
                     .putInt("current_challenge", currentChallengeIndex)
                     .apply();
 
+            // Revelar una pieza más de la imagen
             pictureView.revealPieces(completedPiecesCount);
 
             if (completedPiecesCount >= gameSettings.getTotalChallenges()) {
                 revealFullImageAndCongrats();
             } else {
-                Toast.makeText(this, "Correct! Keep going!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Correct! Piece " + completedPiecesCount + " revealed!", Toast.LENGTH_LONG).show();
                 submitButton.setVisibility(Button.GONE);
                 nextButton.setVisibility(Button.VISIBLE);
-                nextButton.setText("Next");
+                nextButton.setText("Next Challenge");
             }
         } else {
             soundManager.playError();
-            Toast.makeText(this, "Try again!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Try again! The image remains hidden.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void revealFullImageAndCongrats() {
+        // Asegurar que toda la imagen esté revelada
         pictureView.revealPieces(pictureView.getTotalPieces());
+
         new android.os.Handler().postDelayed(() -> {
             soundManager.playVictory();
-            Toast.makeText(this, "Congratulations! You completed the game!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Congratulations! You revealed the complete picture!", Toast.LENGTH_LONG).show();
             prefs.edit().putBoolean("game_completed", true).apply();
+
+            // Volver al menú después de mostrar la imagen completa
             new android.os.Handler().postDelayed(this::finish, 4000);
         }, 1200);
     }
@@ -164,7 +204,8 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (prefs != null) {
+        if (prefs != null && !isNewGame) {
+            // Solo guardar progreso si no es un juego nuevo
             prefs.edit()
                     .putInt("current_challenge", currentChallengeIndex)
                     .putInt("completed_pieces", completedPiecesCount)

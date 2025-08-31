@@ -38,6 +38,7 @@ public class HiddenPictureView extends View {
 
     public HiddenPictureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         initialize();
     }
 
@@ -68,12 +69,13 @@ public class HiddenPictureView extends View {
         textPaint.setShadowLayer(2, 2, 2, Color.BLACK);
 
         puzzlePieces.clear();
+        revealedPieces = 0; // Asegurar que empiece en 0
     }
 
     private void selectRandomImage() {
         int idx = random.nextInt(IMAGE_RESOURCES.length);
         currentImageResource = IMAGE_RESOURCES[idx];
-        currentImageName = ""; // Simplified
+        currentImageName = "";
         currentImageDescription = "";
     }
 
@@ -87,31 +89,45 @@ public class HiddenPictureView extends View {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w,h,oldw,oldh);
+        super.onSizeChanged(w, h, oldw, oldh);
 
-        if (w>0 && h>0) {
-            maskBitmap = Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);
+        if (w > 0 && h > 0) {
+            maskBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             maskCanvas = new Canvas(maskBitmap);
-            maskCanvas.drawColor(Color.parseColor("#BDBDBD"));
 
-            createPuzzlePieces(w,h);
-            updateMask();
+            createPuzzlePieces(w, h);
+            updateMask(); // Esto cubrirá toda la imagen inicialmente
         }
     }
 
     private void createPuzzlePieces(int w, int h) {
         puzzlePieces.clear();
-        float pieceWidth = w/5f;
-        float pieceHeight = h/2f;
-        for (int row=0; row<2; row++){
-            for(int col=0; col<5; col++){
-                puzzlePieces.add(new RectF(col*pieceWidth, row*pieceHeight, (col+1)*pieceWidth, (row+1)*pieceHeight));
-            }
+
+        // Crear piezas basadas en el número total configurado
+        int cols = (int) Math.ceil(Math.sqrt(totalPieces));
+        int rows = (int) Math.ceil((double) totalPieces / cols);
+
+        float pieceWidth = (float) w / cols;
+        float pieceHeight = (float) h / rows;
+
+        for (int i = 0; i < totalPieces; i++) {
+            int row = i / cols;
+            int col = i % cols;
+
+            float left = col * pieceWidth;
+            float top = row * pieceHeight;
+            float right = Math.min((col + 1) * pieceWidth, w);
+            float bottom = Math.min((row + 1) * pieceHeight, h);
+
+            puzzlePieces.add(new RectF(left, top, right, bottom));
         }
     }
 
     public void revealPieces(int count) {
-        revealedPieces = Math.min(count, totalPieces);
+        if (count < 0) count = 0;
+        if (count > totalPieces) count = totalPieces;
+
+        revealedPieces = count;
         updateMask();
         invalidate();
     }
@@ -119,28 +135,34 @@ public class HiddenPictureView extends View {
     public void updateMask() {
         if (maskCanvas == null) return;
 
-        maskCanvas.drawColor(Color.parseColor("#BDBDBD"));
-        for (int i=0; i<revealedPieces && i<puzzlePieces.size(); i++){
+        // Cubrir TODA la imagen con la máscara gris
+        maskCanvas.drawColor(Color.parseColor("#BDBDBD"), android.graphics.PorterDuff.Mode.SRC);
+
+        // Solo revelar las piezas correspondientes al número de respuestas correctas
+        for (int i = 0; i < revealedPieces && i < puzzlePieces.size(); i++) {
             maskCanvas.drawRect(puzzlePieces.get(i), revealPaint);
         }
     }
 
     @Override
-    protected void onDraw(Canvas canvas){
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
         canvas.drawColor(Color.parseColor("#E0F2F1"));
-        canvas.drawRect(4,4,getWidth()-4,getHeight()-4,borderPaint);
+        canvas.drawRect(4, 4, getWidth() - 4, getHeight() - 4, borderPaint);
 
-        if (hiddenPicture!=null && maskBitmap!=null){
-            RectF dest = new RectF(10,10,getWidth()-10,getHeight()-10);
-            canvas.drawBitmap(hiddenPicture,null,dest,null);
+        if (hiddenPicture != null && maskBitmap != null) {
+            // Dibujar la imagen completa primero
+            RectF dest = new RectF(10, 10, getWidth() - 10, getHeight() - 10);
+            canvas.drawBitmap(hiddenPicture, null, dest, null);
 
-            canvas.drawBitmap(maskBitmap,0,0,null);
+            // Aplicar la máscara que oculta las partes no reveladas
+            canvas.drawBitmap(maskBitmap, 0, 0, null);
 
-            // Draw gridlines
-            for(int i=0; i<revealedPieces && i<puzzlePieces.size();i++){
-                canvas.drawRect(puzzlePieces.get(i), gridPaint);
+            // Dibujar líneas de la cuadrícula solo en las partes reveladas
+            for (int i = 0; i < revealedPieces && i < puzzlePieces.size(); i++) {
+                RectF piece = puzzlePieces.get(i);
+                canvas.drawRect(piece, gridPaint);
             }
         }
     }
@@ -151,8 +173,15 @@ public class HiddenPictureView extends View {
 
     public void setTotalPieces(int totalPieces) {
         this.totalPieces = totalPieces;
-        if (revealedPieces > totalPieces){
+
+        // Si el número de piezas reveladas excede el nuevo total, ajustarlo
+        if (revealedPieces > totalPieces) {
             revealedPieces = totalPieces;
+        }
+
+        // Recrear las piezas si ya tenemos dimensiones
+        if (getWidth() > 0 && getHeight() > 0) {
+            createPuzzlePieces(getWidth(), getHeight());
             updateMask();
             invalidate();
         }
@@ -165,5 +194,13 @@ public class HiddenPictureView extends View {
     public boolean isComplete() {
         return revealedPieces >= totalPieces;
     }
-}
 
+    // Método para reiniciar completamente la vista
+    public void resetPuzzle() {
+        revealedPieces = 0;
+        selectRandomImage();
+        loadPicture();
+        updateMask();
+        invalidate();
+    }
+}

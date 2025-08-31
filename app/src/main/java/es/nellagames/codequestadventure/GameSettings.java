@@ -14,7 +14,7 @@ public class GameSettings {
     private DifficultyLevel currentDifficulty;
     private boolean hintsEnabled;
     private boolean soundEnabled;
-    private int totalChallenges;  // <-- campo para controlar total
+    private int totalChallenges;
 
     public GameSettings(Context context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -32,14 +32,13 @@ public class GameSettings {
     public void setDifficulty(DifficultyLevel difficulty) {
         this.currentDifficulty = difficulty;
         prefs.edit().putString(KEY_DIFFICULTY, difficulty.name()).apply();
-        totalChallenges = getDefaultTotalChallenges(); // reset total on difficulty change
+        totalChallenges = getDefaultTotalChallenges();
     }
 
     public DifficultyLevel getDifficulty() {
         return currentDifficulty;
     }
 
-    // Default total challenges based on difficulty
     private int getDefaultTotalChallenges() {
         switch (currentDifficulty) {
             case BEGINNER: return 6;
@@ -49,12 +48,10 @@ public class GameSettings {
         }
     }
 
-    // Allow setting total challenges externally (e.g., to sync with puzzle pieces)
     public void setTotalChallenges(int total) {
         totalChallenges = total;
     }
 
-    // Provide current total challenges
     public int getTotalChallenges() {
         return totalChallenges;
     }
@@ -77,7 +74,6 @@ public class GameSettings {
         return soundEnabled;
     }
 
-    // Return number of puzzle pieces based on difficulty
     public int getPuzzlePieces() {
         switch (currentDifficulty) {
             case BEGINNER: return 6;
@@ -94,5 +90,15 @@ public class GameSettings {
             case ADVANCED: return 60;
             default: return 0;
         }
+    }
+
+    // Método para reiniciar el progreso del juego
+    public void resetGameProgress(Context context) {
+        SharedPreferences gamePrefs = context.getSharedPreferences("CodeQuest", Context.MODE_PRIVATE);
+        gamePrefs.edit()
+                .putInt("completed_pieces", 0)
+                .putInt("current_challenge", 0)
+                .putBoolean("game_completed", false)
+                .apply();
     }
 }
