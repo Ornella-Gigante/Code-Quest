@@ -110,6 +110,7 @@ public class GameActivity extends AppCompatActivity {
         String userAnswer = challengeView.getUserAnswer();
 
         if (currentChallenge != null && currentChallenge.isCorrect(userAnswer)) {
+            // Solo sonido de éxito cuando la opción es correcta
             soundManager.playSuccess();
 
             int completed = prefs.getInt("completed_challenges", 0) + 1;
@@ -140,6 +141,7 @@ public class GameActivity extends AppCompatActivity {
             int total = gameSettings.getTotalChallenges();
             nextButton.setText(completed >= total ? "🏆 Complete Adventure!" : "➡️ Next Challenge");
         } else {
+            // Sonido error si la respuesta es incorrecta
             soundManager.playError();
             String msg = "Try again! 🤔";
             if (currentChallenge != null && currentChallenge.getHint() != null) {
@@ -163,7 +165,9 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showCompletion() {
+        // El sonido de victoria solo cuando el juego se completa
         soundManager.playVictory();
+
         DifficultyLevel difficulty = gameSettings.getDifficulty();
         String imageName = pictureView.getCurrentName();
 
@@ -171,7 +175,9 @@ public class GameActivity extends AppCompatActivity {
                 "!\n\nFinal image: " + imageName + "\n" + pictureView.getCurrentDescription();
 
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-        new android.os.Handler().postDelayed(() -> soundManager.playGameOver(), 3000);
+
+        // No reproducimos sonido de game over aquí
+        // soundManager.playGameOver(); (removido)
 
         prefs.edit().putBoolean("completed_" + difficulty.name().toLowerCase(), true)
                 .putLong("completion_time_" + difficulty.name().toLowerCase(), System.currentTimeMillis())
