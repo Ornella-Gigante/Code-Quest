@@ -303,5 +303,7 @@ public class HiddenPictureView extends View {
     }
 
     public int getTotalPieces() {
+        return totalPieces;
     }
+
 }
