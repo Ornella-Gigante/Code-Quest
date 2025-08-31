@@ -19,12 +19,13 @@ public class TutorialActivity extends AppCompatActivity {
     private SoundManager soundManager;
 
     private String[] pagesText = {
-            "Welcome to CodeQuest Adventure! " + "Let's learn to program step-by-step.",
-            "Drag and drop code blocks to complete the programs. Have fun solving!",
-            "Use hints wisely if stuck. Try to solve it by thinking first!",
+            "Welcome to CodeQuest Adventure!\nLet's learn to program step-by-step.",
+            "Drag and drop code blocks to complete the programs.\nHave fun solving!",
+            "Use hints wisely if stuck.\nTry to solve it by thinking first!",
             "Complete challenges to reveal awesome hidden pictures!",
-            "Good luck! Ready? Let's start coding!"
+            "Good luck!\nReady? Let's start coding!"
     };
+
 
     private int[] pagesBgColors = {
             Color.parseColor("#FFC107"),
