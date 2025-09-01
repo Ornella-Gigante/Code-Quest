@@ -77,6 +77,7 @@
 
                 <!-- Fallback placeholder -->
                 <TextView
+                    android:id="@+id/picturePiecesMessage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -85,6 +86,7 @@
                     android:textColor="#999999"
                     android:gravity="center"
                     android:lineSpacingExtra="4dp"/>
+
 
             </FrameLayout>
 
