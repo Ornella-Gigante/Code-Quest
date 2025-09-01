@@ -122,6 +122,16 @@ Each correct answer unlocks a piece of a hidden picture puzzle! With colorful vi
     │   ├── raw/ (audio files)
     │   └── values/
     └── src/main/assets/ (hidden pictures)
+
+
+## 🎥 Demo
+
+<p align="center">
+  <a href="https://vimeo.com/1114914690" title="ViperX Demo">
+    <img src="https://github.com/Ornella-Gigante/Code-Quest/blob/main/imagecover.png" alt="ViperX Demo" width="400">
+  </a>
+</p>
+
     
 ## 🎵 Music & Audio Credits
 
