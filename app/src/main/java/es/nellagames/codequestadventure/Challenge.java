@@ -49,4 +49,8 @@ public class Challenge {
     public String getIncompleteCode() {
         return codeSnippet;
     }
+    public String getExplanation() {
+        return correctExplanation;
+    }
+
 }

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class GameActivity extends AppCompatActivity {
@@ -39,27 +38,25 @@ public class GameActivity extends AppCompatActivity {
     private void initializeViews() {
         challengeTitle = findViewById(R.id.challengeTitle);
         challengeDescription = findViewById(R.id.challengeDescription);
-        challengeView = findViewById(R.id.challengeView);
+        challengeView = findViewById(R.id.challengeView); // CodeChallengeView
         pictureView = findViewById(R.id.pictureView);
         submitButton = findViewById(R.id.submitButton);
         nextButton = findViewById(R.id.nextButton);
         backToMenuButton = findViewById(R.id.backToMenuButton);
 
         nextButton.setVisibility(Button.GONE);
-        submitButton.setOnClickListener(v -> checkAnswer()); // Sonido eliminado aquí
-        nextButton.setOnClickListener(v -> nextChallenge()); // Sonido eliminado aquí
+        submitButton.setOnClickListener(v -> checkAnswer());
+        nextButton.setOnClickListener(v -> nextChallenge());
+        backToMenuButton.setOnClickListener(v -> {
+            Intent intent = new Intent(GameActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void setupBackListener() {
-        if (backToMenuButton != null) {
-            backToMenuButton.setOnClickListener(v -> {
-                // Sonido eliminado aquí
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
+        // Listener ya puesto en initializeViews, puedes eliminar este método o dejarlo vacío.
     }
 
     private void setupGame() {
@@ -70,16 +67,13 @@ public class GameActivity extends AppCompatActivity {
         if (diff != null) {
             gameSettings.setDifficulty(DifficultyLevel.fromString(diff));
         }
-
         gameLogic = new GameLogic(gameSettings);
         soundManager = new SoundManager(this);
 
-        // SIEMPRE 10 piezas para 10 desafíos
         int totalPieces = 10;
         pictureView.setTotalPieces(totalPieces);
         gameSettings.setTotalChallenges(totalPieces);
 
-        // Reiniciar progreso
         completedPiecesCount = 0;
         currentChallengeIndex = 0;
         prefs.edit()
@@ -88,13 +82,12 @@ public class GameActivity extends AppCompatActivity {
                 .putBoolean("game_completed", false)
                 .apply();
 
-        // Resetear imagen
         pictureView.resetPuzzle();
         pictureView.revealPieces(0);
     }
 
     private void loadCurrentChallenge() {
-        var challenge = gameLogic.getChallenge(currentChallengeIndex);
+        Challenge challenge = gameLogic.getChallenge(currentChallengeIndex);
         if (challenge != null) {
             challengeTitle.setText(challenge.getTitle());
             challengeDescription.setText(challenge.getDescription());
@@ -106,31 +99,27 @@ public class GameActivity extends AppCompatActivity {
     private void updateUI() {
         submitButton.setVisibility(Button.VISIBLE);
         nextButton.setVisibility(Button.GONE);
-
         int total = gameSettings.getTotalChallenges();
         challengeTitle.setText("Challenge " + (currentChallengeIndex + 1) + " of " + total);
     }
 
     private void checkAnswer() {
         String answer = challengeView.getUserAnswer();
-        var challenge = gameLogic.getChallenge(currentChallengeIndex);
+        Challenge challenge = gameLogic.getChallenge(currentChallengeIndex);
 
         if (challenge != null && challenge.isCorrect(answer)) {
-            // sonido removido
+            if (soundManager != null) soundManager.playSuccess();
 
-            showCorrectAnswerDialog(challenge.getCorrectExplanation(), () -> {
+            showCorrectAnswerDialog(challenge.getExplanation(), () -> {
                 completedPiecesCount++;
                 currentChallengeIndex++;
-
                 prefs.edit()
                         .putInt("completed_pieces", completedPiecesCount)
                         .putInt("current_challenge", currentChallengeIndex)
                         .apply();
-
                 pictureView.revealPieces(completedPiecesCount);
-
                 if (completedPiecesCount >= 10) {
-                    revealFullImageAndCongrats();
+                    revealCompletePicture();
                 } else {
                     Toast.makeText(this, "Correct! Piece " + completedPiecesCount + " revealed!", Toast.LENGTH_LONG).show();
                     submitButton.setVisibility(Button.GONE);
@@ -139,11 +128,20 @@ public class GameActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // sonido removido
-
+            if (soundManager != null) soundManager.playError();
             String hint = (challenge != null) ? challenge.getHint() : "Try again!";
             showHintDialog(hint);
         }
+    }
+
+    private void revealCompletePicture() {
+        pictureView.revealPieces(10);
+        new android.os.Handler().postDelayed(() -> {
+            if (soundManager != null) soundManager.playVictory();
+            Toast.makeText(this, "Congratulations! You revealed the complete picture!", Toast.LENGTH_LONG).show();
+            prefs.edit().putBoolean("game_completed", true).apply();
+            new android.os.Handler().postDelayed(this::finish, 4000);
+        }, 1200);
     }
 
     private void showCorrectAnswerDialog(String explanation, Runnable onOk) {
@@ -160,37 +158,21 @@ public class GameActivity extends AppCompatActivity {
 
     private void showHintDialog(String hint) {
         new AlertDialog.Builder(this)
-                .setTitle("Hint 💡")
+                .setTitle("Hint")
                 .setMessage(hint)
                 .setPositiveButton("Try Again", (dialog, which) -> dialog.dismiss())
                 .setCancelable(true)
                 .show();
     }
 
-    private void revealFullImageAndCongrats() {
-        pictureView.revealPieces(10);
-
-        new android.os.Handler().postDelayed(() -> {
-            // sonido removido
-            Toast.makeText(this, "Congratulations! You revealed the complete picture!", Toast.LENGTH_LONG).show();
-            prefs.edit().putBoolean("game_completed", true).apply();
-
-            new android.os.Handler().postDelayed(this::finish, 4000);
-        }, 1200);
-    }
-
     private void nextChallenge() {
         if (currentChallengeIndex >= 10) {
-            showCompletion();
+            revealCompletePicture();
         } else {
+            loadCurrentChallenge();
             submitButton.setVisibility(Button.VISIBLE);
             nextButton.setVisibility(Button.GONE);
-            loadCurrentChallenge();
         }
-    }
-
-    private void showCompletion() {
-        revealFullImageAndCongrats();
     }
 
     @Override
@@ -204,7 +186,6 @@ public class GameActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         if (soundManager != null) soundManager.pauseBackgroundMusic();
-
         if (prefs != null) {
             prefs.edit()
                     .putInt("current_challenge", currentChallengeIndex)
