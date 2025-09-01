@@ -26,7 +26,6 @@ public class TutorialActivity extends AppCompatActivity {
             "Good luck!\nReady? Let's start coding!"
     };
 
-
     private int[] pagesBgColors = {
             Color.parseColor("#FFC107"),
             Color.parseColor("#4CAF50"),
@@ -55,24 +54,23 @@ public class TutorialActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.nextButton);
         prevButton = findViewById(R.id.prevButton);
 
-        // Inicializar SoundManager y música de fondo
         soundManager = new SoundManager(this);
         soundManager.startBackgroundMusic();
 
         updatePage();
 
         nextButton.setOnClickListener(v -> {
-            soundManager.playSuccess(); // sonido al pasar página
-            if (currentPage < pagesText.length - 1) {
+            // sonido removido
+            if (currentPage < pagesText.length -1) {
                 currentPage++;
                 updatePage();
             } else {
-                finish(); // Cerrar tutorial en la última página
+                finish();
             }
         });
 
         prevButton.setOnClickListener(v -> {
-            soundManager.playError(); // sonido distinto al retroceder
+            // sonido removido
             if (currentPage > 0) {
                 currentPage--;
                 updatePage();
@@ -81,39 +79,35 @@ public class TutorialActivity extends AppCompatActivity {
     }
 
     private void updatePage() {
-        // Update background color
         findViewById(android.R.id.content).setBackgroundColor(pagesBgColors[currentPage]);
-
-        // Set tutorial text with styling
         tutorialText.setText(pagesText[currentPage]);
         tutorialText.setTextColor(Color.WHITE);
         tutorialText.setTextSize(26f);
         tutorialText.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD_ITALIC);
-        tutorialText.setShadowLayer(8f, 4f, 4f, Color.BLACK);
-
-        // Set image resource
+        tutorialText.setShadowLayer(8f,4f,4f,Color.BLACK);
         tutorialImage.setImageResource(pagesImages[currentPage]);
-
-        // Update navigation buttons
         prevButton.setVisibility(currentPage == 0 ? View.GONE : View.VISIBLE);
-        nextButton.setText(currentPage == pagesText.length - 1 ? "Finish" : "Next");
+        nextButton.setText(currentPage == pagesText.length -1 ? "Finish" : "Next");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (soundManager != null) soundManager.resumeBackgroundMusic();
+        if (soundManager != null)
+            soundManager.resumeBackgroundMusic();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (soundManager != null) soundManager.pauseBackgroundMusic();
+        if (soundManager != null)
+            soundManager.pauseBackgroundMusic();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (soundManager != null) soundManager.release();
+        if (soundManager != null)
+            soundManager.release();
     }
 }

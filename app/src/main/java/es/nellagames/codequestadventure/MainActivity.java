@@ -1,16 +1,19 @@
 package es.nellagames.codequestadventure;
-
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import android.app.Dialog;
-import android.widget.LinearLayout;
+
+import es.nellagames.codequestadventure.GameSettings;
+import es.nellagames.codequestadventure.SoundManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,43 +51,39 @@ public class MainActivity extends AppCompatActivity {
         soundManager = new SoundManager(this);
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
-        // Iniciar música de fondo
         soundManager.startBackgroundMusic();
     }
 
     private void setupListeners() {
         startButton.setOnClickListener(v -> {
-            soundManager.playSuccess();
+            // sonido removido
             startGame();
         });
 
         continueButton.setOnClickListener(v -> {
-            soundManager.playSuccess();
+            // sonido removido
             startGame();
         });
 
         difficultyButton.setOnClickListener(v -> {
-            soundManager.playSuccess();
+            // sonido removido
             showDifficultySelection(false);
         });
 
         tutorialButton.setOnClickListener(v -> {
-            if (soundManager != null) {
-                soundManager.playSuccess();
-            }
+            // sonido removido
             Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
             startActivity(intent);
         });
 
         resetProgressButton.setOnClickListener(v -> {
-            soundManager.playSuccess();
+            // sonido removido
             prefs.edit()
                     .putInt("current_challenge", 0)
                     .putInt("completed_pieces", 0)
                     .putBoolean("game_completed", false)
                     .apply();
-
-            Toast.makeText(MainActivity.this, "Progress reset successfully!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Progress reset successfully", Toast.LENGTH_SHORT).show();
             updateUI();
         });
     }
@@ -94,30 +93,27 @@ public class MainActivity extends AppCompatActivity {
         dialog.setContentView(R.layout.dialog_difficulty_selection);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-        LinearLayout beginnerLevel = dialog.findViewById(R.id.beginnerLevel);
-        LinearLayout intermediateLevel = dialog.findViewById(R.id.intermediateLevel);
-        LinearLayout advancedLevel = dialog.findViewById(R.id.advancedLevel);
-        Button cancelButton = dialog.findViewById(R.id.cancelButton);
+        LinearLayout beginner = dialog.findViewById(R.id.beginnerLevel);
+        LinearLayout intermediate = dialog.findViewById(R.id.intermediateLevel);
+        LinearLayout advanced = dialog.findViewById(R.id.advancedLevel);
+        Button cancel = dialog.findViewById(R.id.cancelButton);
 
-        beginnerLevel.setOnClickListener(v -> {
-            soundManager.playSuccess();
+        beginner.setOnClickListener(v -> {
             selectDifficulty(DifficultyLevel.BEGINNER, isNewGame);
             dialog.dismiss();
         });
 
-        intermediateLevel.setOnClickListener(v -> {
-            soundManager.playSuccess();
+        intermediate.setOnClickListener(v -> {
             selectDifficulty(DifficultyLevel.INTERMEDIATE, isNewGame);
             dialog.dismiss();
         });
 
-        advancedLevel.setOnClickListener(v -> {
-            soundManager.playSuccess();
+        advanced.setOnClickListener(v -> {
             selectDifficulty(DifficultyLevel.ADVANCED, isNewGame);
             dialog.dismiss();
         });
 
-        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        cancel.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
     }
@@ -126,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
         gameSettings.setDifficulty(difficulty);
 
         if (isNewGame) {
+            // Limpiar progreso para nuevo juego en la nueva dificultad
             prefs.edit().clear().apply();
             startGame();
         }
@@ -135,13 +132,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI() {
         DifficultyLevel difficulty = gameSettings.getDifficulty();
-        int completed = prefs.getInt("completed_pieces", 0); // Cambiado a completed_pieces
-        int total = 10; // Siempre 10 desafíos
+        int completed = prefs.getInt("completed_pieces", 0); // Cambio hecho aquí
+        int total = 10;
 
         progressBar.setMax(total);
         progressBar.setProgress(completed);
 
-        progressText.setText("Progress: " + completed + "/" + total + " challenges completed");
+        progressText.setText("Progress: " + completed + " / " + total + " challenges completed");
         difficultyText.setText("Current Level: " + difficulty.getDisplayName());
 
         continueButton.setVisibility(completed > 0 ? View.VISIBLE : View.GONE);
