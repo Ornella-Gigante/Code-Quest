@@ -46,14 +46,14 @@ public class GameActivity extends AppCompatActivity {
         backToMenuButton = findViewById(R.id.backToMenuButton);
 
         nextButton.setVisibility(Button.GONE);
-        submitButton.setOnClickListener(v -> checkAnswer());
-        nextButton.setOnClickListener(v -> nextChallenge());
+        submitButton.setOnClickListener(v -> checkAnswer()); // Sonido eliminado aquí
+        nextButton.setOnClickListener(v -> nextChallenge()); // Sonido eliminado aquí
     }
 
     private void setupBackListener() {
         if (backToMenuButton != null) {
             backToMenuButton.setOnClickListener(v -> {
-                if (soundManager != null) soundManager.playSuccess();
+                // Sonido eliminado aquí
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
@@ -116,7 +116,7 @@ public class GameActivity extends AppCompatActivity {
         var challenge = gameLogic.getChallenge(currentChallengeIndex);
 
         if (challenge != null && challenge.isCorrect(answer)) {
-            soundManager.playSuccess();
+            // sonido removido
 
             showCorrectAnswerDialog(challenge.getCorrectExplanation(), () -> {
                 completedPiecesCount++;
@@ -139,7 +139,7 @@ public class GameActivity extends AppCompatActivity {
                 }
             });
         } else {
-            soundManager.playError();
+            // sonido removido
 
             String hint = (challenge != null) ? challenge.getHint() : "Try again!";
             showHintDialog(hint);
@@ -171,7 +171,7 @@ public class GameActivity extends AppCompatActivity {
         pictureView.revealPieces(10);
 
         new android.os.Handler().postDelayed(() -> {
-            soundManager.playVictory();
+            // sonido removido
             Toast.makeText(this, "Congratulations! You revealed the complete picture!", Toast.LENGTH_LONG).show();
             prefs.edit().putBoolean("game_completed", true).apply();
 
