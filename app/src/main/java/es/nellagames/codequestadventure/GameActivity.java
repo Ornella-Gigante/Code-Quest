@@ -7,17 +7,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class GameActivity extends AppCompatActivity {
 
-    private TextView challengeTitle, challengeDescription, picturePiecesMessage;
+    private TextView challengeTitle, challengeDescription, picturePiecesMessage, scoreStreakView;
     private CodeChallengeView challengeView;
     private HiddenPictureView pictureView;
     private Button submitButton, nextButton, backToMenuButton;
-    private TextView scoreStreakView;
 
     private GameLogic gameLogic;
     private SoundManager soundManager;
@@ -34,10 +33,19 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_activity);
 
+        prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
+
         initializeViews();
+        loadSavedProgress();
         setupGame();
         loadCurrentChallenge();
         setupBackListener();
+        updateScoreStreakUI();
+    }
+
+    private void loadSavedProgress() {
+        score = prefs.getInt("score", 0);
+        streak = prefs.getInt("streak", 0);
     }
 
     private void initializeViews() {
@@ -49,7 +57,6 @@ public class GameActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.nextButton);
         backToMenuButton = findViewById(R.id.backToMenuButton);
         scoreStreakView = findViewById(R.id.scoreStreakView);
-
         picturePiecesMessage = findViewById(R.id.picturePiecesMessage);
 
         nextButton.setVisibility(Button.GONE);
@@ -70,7 +77,6 @@ public class GameActivity extends AppCompatActivity {
 
     private void setupGame() {
         gameSettings = new GameSettings(this);
-        prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
 
         String diff = getIntent().getStringExtra("difficulty");
         if (diff != null) {
@@ -86,19 +92,17 @@ public class GameActivity extends AppCompatActivity {
 
         completedPiecesCount = 0;
         currentChallengeIndex = 0;
-        score = 0;
-        streak = 0;
+        // score y streak NO se reinician, se cargan del storage
         prefs.edit()
                 .putInt("completed_pieces", 0)
                 .putInt("current_challenge", 0)
                 .putBoolean("game_completed", false)
-                .putInt("score", score)
-                .putInt("streak", streak)
                 .apply();
 
         pictureView.resetPuzzle();
         pictureView.revealPieces(0);
         updatePicturePiecesMessageVisibility(0);
+        updateScoreStreakUI();
     }
 
     private void loadCurrentChallenge() {
@@ -117,6 +121,7 @@ public class GameActivity extends AppCompatActivity {
 
         int total = gameSettings.getTotalChallenges();
         challengeTitle.setText("Challenge " + (currentChallengeIndex + 1) + " of " + total);
+        updateScoreStreakUI();
     }
 
     private void checkAnswer() {
@@ -129,8 +134,7 @@ public class GameActivity extends AppCompatActivity {
             score += 10; // Ajusta los puntos según desees
             streak++;
             prefs.edit().putInt("score", score).putInt("streak", streak).apply();
-            // Mostrar feedback (ejemplo con Toast):
-            Toast.makeText(this, "Score: " + score + ", Streak: " + streak, Toast.LENGTH_SHORT).show();
+            updateScoreStreakUI();
 
             showCorrectAnswerDialog(challenge.getCorrectExplanation(), () -> {
                 completedPiecesCount++;
@@ -158,6 +162,7 @@ public class GameActivity extends AppCompatActivity {
 
             streak = 0;
             prefs.edit().putInt("streak", streak).apply();
+            updateScoreStreakUI();
 
             String hint = (challenge != null) ? challenge.getHint() : "Try again!";
             showHintDialog(hint);
@@ -184,6 +189,10 @@ public class GameActivity extends AppCompatActivity {
         } else {
             picturePiecesMessage.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void updateScoreStreakUI() {
+        scoreStreakView.setText("Score: " + score + "   Streak: " + streak);
     }
 
     private void showCorrectAnswerDialog(String explanation, Runnable onOk) {
@@ -214,6 +223,7 @@ public class GameActivity extends AppCompatActivity {
             submitButton.setVisibility(Button.VISIBLE);
             nextButton.setVisibility(Button.GONE);
             loadCurrentChallenge();
+            updateScoreStreakUI();
         }
     }
 
@@ -237,6 +247,8 @@ public class GameActivity extends AppCompatActivity {
             prefs.edit()
                     .putInt("current_challenge", currentChallengeIndex)
                     .putInt("completed_pieces", completedPiecesCount)
+                    .putInt("score", score)
+                    .putInt("streak", streak)
                     .apply();
         }
     }
