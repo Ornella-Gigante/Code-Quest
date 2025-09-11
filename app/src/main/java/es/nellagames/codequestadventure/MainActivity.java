@@ -18,7 +18,7 @@ import es.nellagames.codequestadventure.SoundManager;
 public class MainActivity extends AppCompatActivity {
 
     private Button startButton, continueButton, difficultyButton, tutorialButton, resetProgressButton;
-    private TextView progressText, difficultyText;
+    private TextView progressText, difficultyText, scoreStreakText;
     private ProgressBar progressBar;
     private SharedPreferences prefs;
     private SoundManager soundManager;
@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         progressText = findViewById(R.id.progressText);
         difficultyText = findViewById(R.id.difficultyText);
         progressBar = findViewById(R.id.progressBar);
+        scoreStreakText = findViewById(R.id.scoreStreakText); // Añade este TextView a tu XML
     }
 
     private void initializeGame() {
@@ -56,31 +57,28 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupListeners() {
         startButton.setOnClickListener(v -> {
-            // sonido removido
             startGame();
         });
 
         continueButton.setOnClickListener(v -> {
-            // sonido removido
             startGame();
         });
 
         difficultyButton.setOnClickListener(v -> {
-            // sonido removido
             showDifficultySelection(false);
         });
 
         tutorialButton.setOnClickListener(v -> {
-            // sonido removido
             Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
             startActivity(intent);
         });
 
         resetProgressButton.setOnClickListener(v -> {
-            // sonido removido
             prefs.edit()
                     .putInt("current_challenge", 0)
                     .putInt("completed_pieces", 0)
+                    .putInt("score", 0)      // reset score
+                    .putInt("streak", 0)     // reset streak
                     .putBoolean("game_completed", false)
                     .apply();
             Toast.makeText(MainActivity.this, "Progress reset successfully", Toast.LENGTH_SHORT).show();
@@ -122,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
         gameSettings.setDifficulty(difficulty);
 
         if (isNewGame) {
-            // Limpiar progreso para nuevo juego en la nueva dificultad
             prefs.edit().clear().apply();
             startGame();
         }
@@ -132,14 +129,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI() {
         DifficultyLevel difficulty = gameSettings.getDifficulty();
-        int completed = prefs.getInt("completed_pieces", 0); // Cambio hecho aquí
+        int completed = prefs.getInt("completed_pieces", 0);
         int total = 10;
+        int score = prefs.getInt("score", 0);
+        int streak = prefs.getInt("streak", 0);
 
         progressBar.setMax(total);
         progressBar.setProgress(completed);
 
         progressText.setText("Progress: " + completed + " / " + total + " challenges completed");
         difficultyText.setText("Current Level: " + difficulty.getDisplayName());
+
+        scoreStreakText.setText("Score: " + score + "   Streak: " + streak);
 
         continueButton.setVisibility(completed > 0 ? View.VISIBLE : View.GONE);
     }
