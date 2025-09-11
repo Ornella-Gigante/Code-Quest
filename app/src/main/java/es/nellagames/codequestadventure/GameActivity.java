@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +17,7 @@ public class GameActivity extends AppCompatActivity {
     private CodeChallengeView challengeView;
     private HiddenPictureView pictureView;
     private Button submitButton, nextButton, backToMenuButton;
+    private TextView scoreStreakView;
 
     private GameLogic gameLogic;
     private SoundManager soundManager;
@@ -47,6 +48,7 @@ public class GameActivity extends AppCompatActivity {
         submitButton = findViewById(R.id.submitButton);
         nextButton = findViewById(R.id.nextButton);
         backToMenuButton = findViewById(R.id.backToMenuButton);
+        scoreStreakView = findViewById(R.id.scoreStreakView);
 
         picturePiecesMessage = findViewById(R.id.picturePiecesMessage);
 

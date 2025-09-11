@@ -46,6 +46,19 @@
             android:lineSpacingExtra="8dp"
             android:maxWidth="480dp"/>
 
+
+        <TextView
+            android:id="@+id/scoreStreakView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Score: 0   Streak: 0"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:textColor="#607D8B"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
+
+
         <!-- Progress Text -->
         <TextView
             android:id="@+id/progressText"
