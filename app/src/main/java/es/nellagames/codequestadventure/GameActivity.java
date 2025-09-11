@@ -25,6 +25,8 @@ public class GameActivity extends AppCompatActivity {
 
     private int currentChallengeIndex = 0;
     private int completedPiecesCount = 0;
+    private int score = 0;
+    private int streak = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +84,14 @@ public class GameActivity extends AppCompatActivity {
 
         completedPiecesCount = 0;
         currentChallengeIndex = 0;
+        score = 0;
+        streak = 0;
         prefs.edit()
                 .putInt("completed_pieces", 0)
                 .putInt("current_challenge", 0)
                 .putBoolean("game_completed", false)
+                .putInt("score", score)
+                .putInt("streak", streak)
                 .apply();
 
         pictureView.resetPuzzle();
@@ -118,6 +124,12 @@ public class GameActivity extends AppCompatActivity {
         if (challenge != null && challenge.isCorrect(answer)) {
             if (soundManager != null) soundManager.playSuccess();
 
+            score += 10; // Ajusta los puntos según desees
+            streak++;
+            prefs.edit().putInt("score", score).putInt("streak", streak).apply();
+            // Mostrar feedback (ejemplo con Toast):
+            Toast.makeText(this, "Score: " + score + ", Streak: " + streak, Toast.LENGTH_SHORT).show();
+
             showCorrectAnswerDialog(challenge.getCorrectExplanation(), () -> {
                 completedPiecesCount++;
                 currentChallengeIndex++;
@@ -141,6 +153,9 @@ public class GameActivity extends AppCompatActivity {
             });
         } else {
             if (soundManager != null) soundManager.playError();
+
+            streak = 0;
+            prefs.edit().putInt("streak", streak).apply();
 
             String hint = (challenge != null) ? challenge.getHint() : "Try again!";
             showHintDialog(hint);
