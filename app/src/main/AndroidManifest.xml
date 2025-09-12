@@ -42,6 +42,10 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+
+        <activity android:name=".LeaderboardActivity" />
+
+
         <!-- Servicio de música de fondo persistente -->
         <service
             android:name="MusicService"
