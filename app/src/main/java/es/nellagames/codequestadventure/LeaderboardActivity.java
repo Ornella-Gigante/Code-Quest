@@ -19,6 +19,9 @@ public class LeaderboardActivity extends AppCompatActivity {
     private LinearLayout emptyView;
     private Button backToMainButton;
     private SoundManager soundManager;
+    // Temporalmente comenta esta línea:
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +72,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     private void loadLeaderboard() {
-        dbHelper.resetOldEntries();
+        // dbHelper.resetOldEntries(); // <-- Ahora está comentada
         List<LeaderboardEntry> entries = dbHelper.getAllEntries();
         if (entries.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
@@ -81,4 +84,5 @@ public class LeaderboardActivity extends AppCompatActivity {
             emptyView.setVisibility(View.GONE);
         }
     }
+
 }

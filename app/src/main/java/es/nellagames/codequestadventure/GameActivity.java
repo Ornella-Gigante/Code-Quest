@@ -67,6 +67,14 @@ public class GameActivity extends AppCompatActivity {
     private void setupBackListener() {
         if (backToMenuButton != null) {
             backToMenuButton.setOnClickListener(v -> {
+                // Guardar score parcial si existe
+                if (score > 0) {
+                    LeaderboardDbHelper dbHelper = new LeaderboardDbHelper(this);
+                    String playerName = "Player 1";  // Cambia por dinámico si quieres
+                    String avatarUrl = "";           // Cambia cuando tengas avatares
+                    LeaderboardEntry entry = new LeaderboardEntry(playerName, score, avatarUrl);
+                    dbHelper.insertEntry(entry);
+                }
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
@@ -92,7 +100,6 @@ public class GameActivity extends AppCompatActivity {
 
         completedPiecesCount = 0;
         currentChallengeIndex = 0;
-        // score y streak NO se reinician, se cargan del storage
         prefs.edit()
                 .putInt("completed_pieces", 0)
                 .putInt("current_challenge", 0)
@@ -131,7 +138,7 @@ public class GameActivity extends AppCompatActivity {
         if (challenge != null && challenge.isCorrect(answer)) {
             if (soundManager != null) soundManager.playSuccess();
 
-            score += 10; // Ajusta los puntos según desees
+            score += 10;
             streak++;
             prefs.edit().putInt("score", score).putInt("streak", streak).apply();
             updateScoreStreakUI();
@@ -172,6 +179,13 @@ public class GameActivity extends AppCompatActivity {
     private void revealFullImageAndCongrats() {
         pictureView.revealPieces(10);
         updatePicturePiecesMessageVisibility(10);
+
+        // Guarda el resultado en el leaderboard al finalizar todo
+        LeaderboardDbHelper dbHelper = new LeaderboardDbHelper(this);
+        String playerName = "Player 1";  // Cambia por dinámico si quieres
+        String avatarUrl = "";           // Cambia cuando tengas avatares
+        LeaderboardEntry entry = new LeaderboardEntry(playerName, score, avatarUrl);
+        dbHelper.insertEntry(entry);
 
         new android.os.Handler().postDelayed(() -> {
             if (soundManager != null) soundManager.playVictory();
