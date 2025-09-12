@@ -18,7 +18,7 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
     private static final String COLUMN_PLAYER_NAME = "player_name";
     private static final String COLUMN_SCORE = "score";
     private static final String COLUMN_AVATAR_URL = "avatar_url";
-    private static final String COLUMN_TIMESTAMP = "timestamp"; // Para resets basados en tiempo
+    private static final String COLUMN_TIMESTAMP = "timestamp";
 
     public LeaderboardDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -41,7 +41,6 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // Método para insertar una entrada
     public void insertEntry(LeaderboardEntry entry) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -52,7 +51,6 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
     }
 
-    // Método para cargar todas las entradas (ordenadas por score descendente)
     public List<LeaderboardEntry> getAllEntries() {
         List<LeaderboardEntry> entries = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -70,10 +68,9 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
         return entries;
     }
 
-    // Método para reset (borrar entradas antiguas, ej. mayores a 7 días)
     public void resetOldEntries() {
         SQLiteDatabase db = this.getWritableDatabase();
-        long oneWeekAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000);
+        long oneWeekAgo = System.currentTimeMillis() - (7L * 24 * 60 * 60 * 1000);
         db.delete(TABLE_NAME, COLUMN_TIMESTAMP + " < ?", new String[]{String.valueOf(oneWeekAgo)});
     }
 }
