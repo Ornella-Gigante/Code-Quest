@@ -5,9 +5,9 @@ public class LeaderboardEntry {
     public int score;
     public String avatarUrl;
 
-    public LeaderboardEntry(String name, int score, String avatar) {
-        this.playerName = name;
+    public LeaderboardEntry(String playerName, int score, String avatarUrl) {
+        this.playerName = playerName;
         this.score = score;
-        this.avatarUrl = avatar;
+        this.avatarUrl = avatarUrl;
     }
 }
