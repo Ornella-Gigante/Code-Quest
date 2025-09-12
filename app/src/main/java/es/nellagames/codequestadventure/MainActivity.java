@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private SoundManager soundManager;
     private GameSettings gameSettings;
+    private Button leaderboardButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
         progressText = findViewById(R.id.progressText);
         difficultyText = findViewById(R.id.difficultyText);
         progressBar = findViewById(R.id.progressBar);
-        scoreStreakText = findViewById(R.id.scoreStreakText); // Añade este TextView a tu XML
+        scoreStreakText = findViewById(R.id.scoreStreakText);
+        leaderboardButton = findViewById(R.id.leaderboardButton);
     }
 
     private void initializeGame() {
@@ -83,6 +85,11 @@ public class MainActivity extends AppCompatActivity {
                     .apply();
             Toast.makeText(MainActivity.this, "Progress reset successfully", Toast.LENGTH_SHORT).show();
             updateUI();
+        });
+
+        leaderboardButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -175,4 +182,6 @@ public class MainActivity extends AppCompatActivity {
             soundManager.release();
         }
     }
+
+
 }

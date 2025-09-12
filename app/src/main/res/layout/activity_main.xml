@@ -109,6 +109,20 @@
             android:textAllCaps="false"
             android:elevation="8dp"/>
 
+        <Button
+            android:id="@+id/leaderboardButton"
+            android:layout_width="320dp"
+            android:layout_height="64dp"
+            android:text="🏆 Leaderboard"
+            android:textSize="20sp"
+            android:backgroundTint="#795548"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="false"
+            android:elevation="6dp"
+            android:layout_marginBottom="20dp"/>
+
+
         <!-- Tutorial Button -->
         <Button
             android:id="@+id/tutorialButton"
