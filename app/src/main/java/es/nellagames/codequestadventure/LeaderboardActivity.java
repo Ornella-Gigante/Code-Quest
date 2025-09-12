@@ -9,36 +9,32 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-// Asume que tienes un Adapter para RecyclerView (crea uno simple para mostrar LeaderboardEntry)
-
 public class LeaderboardActivity extends AppCompatActivity {
     private LeaderboardDbHelper dbHelper;
     private RecyclerView recyclerView;
-    // Asume LeaderboardAdapter como tu adapter personalizado
+    private LeaderboardAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_leaderboard); // Crea este layout con RecyclerView
+        setContentView(R.layout.activity_leaderboard);
 
-        dbHelper = new LeaderboardDbHelper(this);
         recyclerView = findViewById(R.id.leaderboardRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        dbHelper = new LeaderboardDbHelper(this);
 
         loadLeaderboard();
     }
 
     private void loadLeaderboard() {
-        // Reset entradas antiguas (simula reset semanal)
         dbHelper.resetOldEntries();
-
         List<LeaderboardEntry> entries = dbHelper.getAllEntries();
         if (entries.isEmpty()) {
-            Toast.makeText(this, "No entries yet!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No leaderboard entries yet!", Toast.LENGTH_SHORT).show();
         } else {
-            // Configura el adapter y asigna a recyclerView
-            // LeaderboardAdapter adapter = new LeaderboardAdapter(entries);
-            // recyclerView.setAdapter(adapter);
+            adapter = new LeaderboardAdapter(entries);
+            recyclerView.setAdapter(adapter);
         }
     }
 }
