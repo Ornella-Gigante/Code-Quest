@@ -18,11 +18,14 @@ public class LeaderboardActivity extends AppCompatActivity {
     private LeaderboardAdapter adapter;
     private LinearLayout emptyView;
     private Button backToMainButton;
+    private SoundManager soundManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
+
+        soundManager = new SoundManager(this);
 
         recyclerView = findViewById(R.id.leaderboardRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -39,6 +42,30 @@ public class LeaderboardActivity extends AppCompatActivity {
         });
 
         loadLeaderboard();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (soundManager != null) {
+            soundManager.resumeBackgroundMusic();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (soundManager != null) {
+            soundManager.pauseBackgroundMusic();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (soundManager != null) {
+            soundManager.release();
+        }
     }
 
     private void loadLeaderboard() {
