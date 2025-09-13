@@ -17,6 +17,8 @@ public class GameActivity extends AppCompatActivity {
     private CodeChallengeView challengeView;
     private HiddenPictureView pictureView;
     private Button submitButton, nextButton, backToMenuButton;
+    private long currentUserId = -1;
+    private String currentUsername = "";
 
     private GameLogic gameLogic;
     private SoundManager soundManager;
@@ -34,6 +36,9 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.game_activity);
 
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
+        currentUserId = prefs.getLong("current_user_id", -1);
+        currentUsername = prefs.getString("current_username", "Guest");
+
 
         initializeViews();
         loadSavedProgress();
@@ -186,6 +191,12 @@ public class GameActivity extends AppCompatActivity {
         String avatarUrl = "";           // Cambia cuando tengas avatares
         LeaderboardEntry entry = new LeaderboardEntry(playerName, score, avatarUrl);
         dbHelper.insertEntry(entry);
+        LeaderboardDbHelper dbHelper = new LeaderboardDbHelper(this);
+        String avatarUrl = ""; // Agrega lógica de avatar si tienes
+        if (currentUserId != -1 && score > 0) {
+            dbHelper.insertEntry(currentUserId, score, avatarUrl);
+        }
+
 
         new android.os.Handler().postDelayed(() -> {
             if (soundManager != null) soundManager.playVictory();

@@ -10,12 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LeaderboardDbHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "leaderboard.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "game.db";
+    private static final int DATABASE_VERSION = 2; // Incrementar al cambiar esquema
 
-    private static final String TABLE_NAME = "leaderboard";
-    private static final String COLUMN_ID = "_id";
-    private static final String COLUMN_PLAYER_NAME = "player_name";
+    // Tabla Usuarios
+    private static final String TABLE_USERS = "users";
+    private static final String COLUMN_USER_ID = "_id";
+    private static final String COLUMN_USERNAME = "username";
+
+    // Tabla Leaderboard (actualizada)
+    private static final String TABLE_LEADERBOARD = "leaderboard";
+    private static final String COLUMN_ENTRY_ID = "_id";
+    private static final String COLUMN_USER_ID_FK = "user_id";
     private static final String COLUMN_SCORE = "score";
     private static final String COLUMN_AVATAR_URL = "avatar_url";
     private static final String COLUMN_TIMESTAMP = "timestamp";
@@ -26,51 +32,84 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE " + TABLE_NAME + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_PLAYER_NAME + " TEXT, " +
+        // Crear tabla users
+        String createUsers = "CREATE TABLE " + TABLE_USERS + " (" +
+                COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_USERNAME + " TEXT UNIQUE NOT NULL)";
+        db.execSQL(createUsers);
+
+        // Crear tabla leaderboard con user_id FK
+        String createLeaderboard = "CREATE TABLE " + TABLE_LEADERBOARD + " (" +
+                COLUMN_ENTRY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_USER_ID_FK + " INTEGER, " +
                 COLUMN_SCORE + " INTEGER, " +
                 COLUMN_AVATAR_URL + " TEXT, " +
-                COLUMN_TIMESTAMP + " LONG)";
-        db.execSQL(createTable);
+                COLUMN_TIMESTAMP + " LONG," +
+                "FOREIGN KEY(" + COLUMN_USER_ID_FK + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + "))";
+        db.execSQL(createLeaderboard);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-        onCreate(db);
+        if (oldVersion < 2) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_LEADERBOARD);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+            onCreate(db);
+        }
     }
 
-    public void insertEntry(LeaderboardEntry entry) {
+    // Insertar usuario
+    public long insertUser(String username) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COLUMN_PLAYER_NAME, entry.playerName);
-        values.put(COLUMN_SCORE, entry.score);
-        values.put(COLUMN_AVATAR_URL, entry.avatarUrl);
-        values.put(COLUMN_TIMESTAMP, System.currentTimeMillis());
-        db.insert(TABLE_NAME, null, values);
+        values.put(COLUMN_USERNAME, username);
+        return db.insertWithOnConflict(TABLE_USERS, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
-    public List<LeaderboardEntry> getAllEntries() {
+    // Buscar usuario por username
+    public long getUserId(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.query(TABLE_USERS,
+                new String[]{COLUMN_USER_ID},
+                COLUMN_USERNAME + "=?",
+                new String[]{username},
+                null, null,null);
+        long userId = -1;
+        if (c.moveToFirst()) {
+            userId = c.getLong(c.getColumnIndexOrThrow(COLUMN_USER_ID));
+        }
+        c.close();
+        return userId;
+    }
+
+    // Insertar entrada en leaderboard ligada a userId
+    public void insertEntry(long userId, int score, String avatarUrl) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_ID_FK, userId);
+        values.put(COLUMN_SCORE, score);
+        values.put(COLUMN_AVATAR_URL, avatarUrl);
+        values.put(COLUMN_TIMESTAMP, System.currentTimeMillis());
+        db.insert(TABLE_LEADERBOARD, null, values);
+    }
+
+    // Obtener scores solo para un usuario
+    public List<LeaderboardEntry> getEntriesForUser(long userId) {
         List<LeaderboardEntry> entries = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, COLUMN_SCORE + " DESC");
-
-        if (cursor.moveToFirst()) {
-            do {
-                String name = cursor.getString(cursor.getColumnIndex(COLUMN_PLAYER_NAME));
-                int score = cursor.getInt(cursor.getColumnIndex(COLUMN_SCORE));
-                String avatar = cursor.getString(cursor.getColumnIndex(COLUMN_AVATAR_URL));
-                entries.add(new LeaderboardEntry(name, score, avatar));
-            } while (cursor.moveToNext());
+        Cursor cursor = db.query(TABLE_LEADERBOARD,
+                null,
+                COLUMN_USER_ID_FK + "=?",
+                new String[]{String.valueOf(userId)},
+                null,null,
+                COLUMN_SCORE + " DESC");
+        while (cursor.moveToNext()) {
+            String username = ""; // Opcional, si quieres traer username también
+            int score = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SCORE));
+            String avatar = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_AVATAR_URL));
+            entries.add(new LeaderboardEntry(username, score, avatar));
         }
         cursor.close();
         return entries;
-    }
-
-    public void resetOldEntries() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        long oneWeekAgo = System.currentTimeMillis() - (7L * 24 * 60 * 60 * 1000);
-        db.delete(TABLE_NAME, COLUMN_TIMESTAMP + " < ?", new String[]{String.valueOf(oneWeekAgo)});
     }
 }
