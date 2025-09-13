@@ -9,16 +9,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.nellagames.codequestadventure.LeaderboardEntry;
+
 public class LeaderboardDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "game.db";
-    private static final int DATABASE_VERSION = 2; // Incrementar al cambiar esquema
+    private static final int DATABASE_VERSION = 2;
 
-    // Tabla Usuarios
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_USER_ID = "_id";
     private static final String COLUMN_USERNAME = "username";
 
-    // Tabla Leaderboard (actualizada)
     private static final String TABLE_LEADERBOARD = "leaderboard";
     private static final String COLUMN_ENTRY_ID = "_id";
     private static final String COLUMN_USER_ID_FK = "user_id";
@@ -32,20 +32,20 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Crear tabla users
-        String createUsers = "CREATE TABLE " + TABLE_USERS + " (" +
-                COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_USERNAME + " TEXT UNIQUE NOT NULL)";
+        String createUsers =
+                "CREATE TABLE " + TABLE_USERS + " (" +
+                        COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_USERNAME + " TEXT UNIQUE NOT NULL)";
         db.execSQL(createUsers);
 
-        // Crear tabla leaderboard con user_id FK
-        String createLeaderboard = "CREATE TABLE " + TABLE_LEADERBOARD + " (" +
-                COLUMN_ENTRY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_USER_ID_FK + " INTEGER, " +
-                COLUMN_SCORE + " INTEGER, " +
-                COLUMN_AVATAR_URL + " TEXT, " +
-                COLUMN_TIMESTAMP + " LONG," +
-                "FOREIGN KEY(" + COLUMN_USER_ID_FK + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + "))";
+        String createLeaderboard =
+                "CREATE TABLE " + TABLE_LEADERBOARD + " (" +
+                        COLUMN_ENTRY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_USER_ID_FK + " INTEGER, " +
+                        COLUMN_SCORE + " INTEGER, " +
+                        COLUMN_AVATAR_URL + " TEXT, " +
+                        COLUMN_TIMESTAMP + " LONG," +
+                        "FOREIGN KEY(" + COLUMN_USER_ID_FK + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + "))";
         db.execSQL(createLeaderboard);
     }
 
@@ -58,7 +58,6 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
         }
     }
 
-    // Insertar usuario
     public long insertUser(String username) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -66,14 +65,13 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
         return db.insertWithOnConflict(TABLE_USERS, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
-    // Buscar usuario por username
     public long getUserId(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.query(TABLE_USERS,
                 new String[]{COLUMN_USER_ID},
                 COLUMN_USERNAME + "=?",
                 new String[]{username},
-                null, null,null);
+                null, null, null);
         long userId = -1;
         if (c.moveToFirst()) {
             userId = c.getLong(c.getColumnIndexOrThrow(COLUMN_USER_ID));
@@ -82,8 +80,8 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
         return userId;
     }
 
-    // Insertar entrada en leaderboard ligada a userId
     public void insertEntry(long userId, int score, String avatarUrl) {
+        if (userId < 0) return;
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_USER_ID_FK, userId);
@@ -93,21 +91,20 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
         db.insert(TABLE_LEADERBOARD, null, values);
     }
 
-    // Obtener scores solo para un usuario
     public List<LeaderboardEntry> getEntriesForUser(long userId) {
         List<LeaderboardEntry> entries = new ArrayList<>();
+        if (userId < 0) return entries;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_LEADERBOARD,
                 null,
                 COLUMN_USER_ID_FK + "=?",
                 new String[]{String.valueOf(userId)},
-                null,null,
+                null, null,
                 COLUMN_SCORE + " DESC");
         while (cursor.moveToNext()) {
-            String username = ""; // Opcional, si quieres traer username también
             int score = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SCORE));
             String avatar = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_AVATAR_URL));
-            entries.add(new LeaderboardEntry(username, score, avatar));
+            entries.add(new LeaderboardEntry("", score, avatar));
         }
         cursor.close();
         return entries;
