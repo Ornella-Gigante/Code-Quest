@@ -44,6 +44,8 @@
 
 
         <activity android:name=".LeaderboardActivity" />
+        <activity android:name=".LoginActivity" />
+
 
 
         <!-- Servicio de música de fondo persistente -->
