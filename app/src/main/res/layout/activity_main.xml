@@ -163,6 +163,20 @@
             android:textAllCaps="false"
             android:elevation="6dp"/>
 
+
+        <Button
+            android:id="@+id/logoutButton"
+            android:layout_width="320dp"
+            android:layout_height="64dp"
+            android:text="➡️Log out"
+            android:textSize="20sp"
+            android:backgroundTint="#f44336"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="false"
+            android:elevation="6dp" />
+
+
         <!-- Level Display -->
         <TextView
             android:id="@+id/difficultyText"

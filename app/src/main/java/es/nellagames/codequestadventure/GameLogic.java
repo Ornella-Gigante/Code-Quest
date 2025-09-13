@@ -1,5 +1,7 @@
 package es.nellagames.codequestadventure;
 
+import android.graphics.Bitmap;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,6 +16,9 @@ public class GameLogic {
         this.settings = settings;
         initializeAllChallenges();
     }
+
+
+
 
     private void initializeAllChallenges() {
         initializeBeginnerChallenges();

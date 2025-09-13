@@ -1,29 +1,27 @@
 package es.nellagames.codequestadventure;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.View;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import es.nellagames.codequestadventure.GameSettings;
-import es.nellagames.codequestadventure.SoundManager;
-
 public class MainActivity extends AppCompatActivity {
 
-    private Button startButton, continueButton, difficultyButton, tutorialButton, resetProgressButton;
+    private Button startButton, continueButton, difficultyButton, tutorialButton, resetProgressButton, leaderboardButton, logoutButton;
     private TextView progressText, difficultyText, scoreStreakText;
     private ProgressBar progressBar;
     private SharedPreferences prefs;
     private SoundManager soundManager;
     private GameSettings gameSettings;
-    private Button leaderboardButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,49 +45,42 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         scoreStreakText = findViewById(R.id.scoreStreakText);
         leaderboardButton = findViewById(R.id.leaderboardButton);
+        logoutButton = findViewById(R.id.logoutButton);
     }
 
     private void initializeGame() {
         gameSettings = new GameSettings(this);
         soundManager = new SoundManager(this);
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
-
-        soundManager.startBackgroundMusic();
+        // Música global ya iniciada desde Login
     }
 
     private void setupListeners() {
-        startButton.setOnClickListener(v -> {
-            startGame();
-        });
-
-        continueButton.setOnClickListener(v -> {
-            startGame();
-        });
-
-        difficultyButton.setOnClickListener(v -> {
-            showDifficultySelection(false);
-        });
-
-        tutorialButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
-            startActivity(intent);
-        });
+        startButton.setOnClickListener(v -> startGame());
+        continueButton.setOnClickListener(v -> startGame());
+        difficultyButton.setOnClickListener(v -> showDifficultySelection(false));
+        tutorialButton.setOnClickListener(v -> startActivity(new Intent(this, TutorialActivity.class)));
+        leaderboardButton.setOnClickListener(v -> startActivity(new Intent(this, LeaderboardActivity.class)));
 
         resetProgressButton.setOnClickListener(v -> {
             prefs.edit()
                     .putInt("current_challenge", 0)
                     .putInt("completed_pieces", 0)
-                    .putInt("score", 0)      // reset score
-                    .putInt("streak", 0)     // reset streak
+                    .putInt("score", 0)
+                    .putInt("streak", 0)
                     .putBoolean("game_completed", false)
                     .apply();
-            Toast.makeText(MainActivity.this, "Progress reset successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Progress reset successfully", Toast.LENGTH_SHORT).show();
             updateUI();
         });
 
-        leaderboardButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
+        logoutButton.setOnClickListener(v -> {
+            prefs.edit().clear().apply();
+            stopService(new Intent(this, MusicService.class));
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+            finish();
         });
     }
 
@@ -161,10 +152,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        updateUI();
         if (soundManager != null) {
             soundManager.resumeBackgroundMusic();
         }
-        updateUI();
     }
 
     @Override
@@ -182,6 +173,4 @@ public class MainActivity extends AppCompatActivity {
             soundManager.release();
         }
     }
-
-
 }

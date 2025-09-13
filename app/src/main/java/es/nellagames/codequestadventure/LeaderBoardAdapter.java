@@ -1,5 +1,6 @@
 package es.nellagames.codequestadventure;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,10 @@ import java.util.List;
 public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.ViewHolder> {
 
     private List<LeaderboardEntry> entries;
+    private Context context;
 
-    public LeaderboardAdapter(List<LeaderboardEntry> entries) {
+    public LeaderboardAdapter(Context context, List<LeaderboardEntry> entries) {
+        this.context = context;
         this.entries = entries;
     }
 
@@ -28,12 +31,25 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LeaderboardAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         LeaderboardEntry entry = entries.get(position);
+
+        // Mostrar el rango/posición
+        holder.rankText.setText("#" + (position + 1));
+
+        // Mostrar nombre del jugador
         holder.playerName.setText(entry.playerName);
+
+        // Mostrar puntuación
         holder.playerScore.setText(String.valueOf(entry.score));
-        // Si tienes avatar URL o recurso puede ser cargado aquí:
-        // holder.playerAvatar.setImageResource(...);
+
+        // Mostrar avatar como Bitmap
+        if (entry.avatar != null) {
+            holder.playerAvatar.setImageBitmap(entry.avatar);
+        } else {
+            // Usar avatar por defecto si no hay imagen
+            holder.playerAvatar.setImageResource(R.drawable.bird); // Coincide con tu layout
+        }
     }
 
     @Override
@@ -41,12 +57,19 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
         return entries.size();
     }
 
+    public void updateData(List<LeaderboardEntry> entries) {
+        this.entries = entries;
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView rankText;
         TextView playerName, playerScore;
         ImageView playerAvatar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            rankText = itemView.findViewById(R.id.rankText);
             playerName = itemView.findViewById(R.id.playerName);
             playerScore = itemView.findViewById(R.id.playerScore);
             playerAvatar = itemView.findViewById(R.id.playerAvatar);

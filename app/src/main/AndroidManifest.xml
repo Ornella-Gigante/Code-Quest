@@ -13,47 +13,30 @@
         android:theme="@style/Theme.CodeQuestAdventure"
         tools:targetApi="31">
 
-        <!-- MainActivity - Pantalla principal -->
+        <!-- Crear usuario -->
+        <activity android:name=".CreateUserActivity" />
+
+        <!-- Login ES EL LAUNCHER -->
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <!-- GameActivity - Pantalla del juego -->
-        <activity
-            android:name=".GameActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity">
-            <!-- Navegación hacia atrás -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
+        <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="portrait"/>
+        <activity android:name=".GameActivity" android:exported="false" android:screenOrientation="portrait"/>
+        <activity android:name=".LeaderboardActivity"/>
+        <activity android:name=".TutorialActivity" android:exported="false" android:screenOrientation="portrait"/>
 
-        <!-- TutorialActivity - Tutorial -->
-        <activity
-            android:name=".TutorialActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-
-        <activity android:name=".LeaderboardActivity" />
-        <activity android:name=".LoginActivity" />
-
-
-
-        <!-- Servicio de música de fondo persistente -->
+        <!-- Música de fondo siempre ejecutándose -->
         <service
-            android:name="MusicService"
+            android:name=".MusicService"
             android:enabled="true"
             android:exported="false" />
 
     </application>
-
 </manifest>
