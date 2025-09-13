@@ -21,12 +21,17 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         startService(new Intent(this, MusicService.class));
 
-        // SOLO LA PRIMERA VEZ: limpia usuarios viejos problemáticos (después de verificar, eliminar)
-        LeaderboardDbHelper dbTemp = new LeaderboardDbHelper(this);
-        dbTemp.clearAllUsers();
-        dbTemp.close();
-
         prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
+
+        // Limpiar usuarios solo en la primera ejecución para evitar problemas con datos corruptos
+        boolean firstRun = prefs.getBoolean("first_run", true);
+        if (firstRun) {
+            LeaderboardDbHelper dbTemp = new LeaderboardDbHelper(this);
+            dbTemp.clearAllUsers();
+            dbTemp.close();
+
+            prefs.edit().putBoolean("first_run", false).apply();
+        }
 
         // Si ya hay sesión iniciada, ir a MainActivity
         if (prefs.contains("current_user_id")) {
@@ -52,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
             if (c.moveToFirst()) {
                 long userId = c.getLong(c.getColumnIndexOrThrow("_id"));
 
-                // Ya no hace falta convertir avatar a string, pero mantenemos compatibilidad
+                // Mantener compatibilidad, aunque avatar ya no se usa como string
                 prefs.edit()
                         .putLong("current_user_id", userId)
                         .putString("current_username", username)

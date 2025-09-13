@@ -11,7 +11,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.view.View;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -75,7 +74,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         logoutButton.setOnClickListener(v -> {
-            prefs.edit().clear().apply();
+            // Borra solo datos relacionados a sesión del usuario sin afectar progreso
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.remove("current_user_id");
+            editor.remove("current_username");
+            editor.remove("current_avatar");
+            editor.apply();
+
             stopService(new Intent(this, MusicService.class));
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
