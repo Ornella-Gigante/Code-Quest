@@ -324,7 +324,7 @@ public class LeaderboardDbHelper extends SQLiteOpenHelper {
         dbHelper.clearAllData();  // Borra todos los usuarios y sus scores
         dbHelper.close();
 
-        Toast.makeText(context, "Todos los usuarios y sus datos han sido eliminados.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "All users have been erased.", Toast.LENGTH_SHORT).show();
     }
 
 }

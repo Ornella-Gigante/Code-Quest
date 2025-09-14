@@ -79,7 +79,7 @@
             android:elevation="8dp"
             android:fontFamily="sans-serif-medium"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"/>
+            />
 
         <Button
             android:id="@+id/btnCreateUser"
@@ -98,7 +98,7 @@
             android:text="Delete user"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:backgroundTint="#44ECAA"
+            android:backgroundTint="#E74C3C"
             android:textColor="#34495E"
             android:textSize="20sp"
             android:textStyle="bold"
