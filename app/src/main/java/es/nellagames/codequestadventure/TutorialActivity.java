@@ -54,14 +54,18 @@ public class TutorialActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.nextButton);
         prevButton = findViewById(R.id.prevButton);
 
-        soundManager = new SoundManager(this);
-        soundManager.startBackgroundMusic();
+        // Initialize sound manager safely
+        try {
+            soundManager = new SoundManager(this);
+        } catch (Exception e) {
+            // If sound manager fails to initialize, continue without it
+            soundManager = null;
+        }
 
         updatePage();
 
         nextButton.setOnClickListener(v -> {
-            // sonido removido
-            if (currentPage < pagesText.length -1) {
+            if (currentPage < pagesText.length - 1) {
                 currentPage++;
                 updatePage();
             } else {
@@ -70,7 +74,6 @@ public class TutorialActivity extends AppCompatActivity {
         });
 
         prevButton.setOnClickListener(v -> {
-            // sonido removido
             if (currentPage > 0) {
                 currentPage--;
                 updatePage();
@@ -84,30 +87,50 @@ public class TutorialActivity extends AppCompatActivity {
         tutorialText.setTextColor(Color.WHITE);
         tutorialText.setTextSize(26f);
         tutorialText.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD_ITALIC);
-        tutorialText.setShadowLayer(8f,4f,4f,Color.BLACK);
+        tutorialText.setShadowLayer(8f, 4f, 4f, Color.BLACK);
         tutorialImage.setImageResource(pagesImages[currentPage]);
         prevButton.setVisibility(currentPage == 0 ? View.GONE : View.VISIBLE);
-        nextButton.setText(currentPage == pagesText.length -1 ? "Finish" : "Next");
+        nextButton.setText(currentPage == pagesText.length - 1 ? "Finish" : "Next");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (soundManager != null)
-            soundManager.resumeBackgroundMusic();
+        // Only try to resume music if sound manager exists and music service is available
+        if (soundManager != null && soundManager.isSoundEnabled()) {
+            try {
+                soundManager.resumeBackgroundMusic();
+            } catch (Exception e) {
+                // Ignore music errors to prevent crashes
+            }
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (soundManager != null)
-            soundManager.pauseBackgroundMusic();
+        // Only try to pause music if sound manager exists
+        if (soundManager != null) {
+            try {
+                soundManager.pauseBackgroundMusic();
+            } catch (Exception e) {
+                // Ignore music errors to prevent crashes
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (soundManager != null)
-            soundManager.release();
+        // Safely release sound manager
+        if (soundManager != null) {
+            try {
+                soundManager.release();
+            } catch (Exception e) {
+                // Ignore release errors
+            } finally {
+                soundManager = null;
+            }
+        }
     }
 }

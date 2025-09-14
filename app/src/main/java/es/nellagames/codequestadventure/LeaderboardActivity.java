@@ -1,6 +1,5 @@
 package es.nellagames.codequestadventure;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -15,8 +14,6 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +25,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     private Button backToMainButton;
     private long currentUserId = -1;
     private SharedPreferences prefs;
+    private SoundManager soundManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +36,8 @@ public class LeaderboardActivity extends AppCompatActivity {
         currentUserId = prefs.getLong("current_user_id", -1);
 
         dbHelper = new LeaderboardDbHelper(this);
+
+        soundManager = new SoundManager(this); // ← Inicializar el soundManager
 
         recyclerView = findViewById(R.id.leaderboardRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -56,7 +56,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<LeaderboardEntry> entries = new ArrayList<>();
 
-        // Consulta corregida usando tabla "leaderboard"
+        // Query to get users with their highest scores
         String query = "SELECT u._id AS id, u.username, u.avatar, MAX(l.score) as max_score " +
                 "FROM users u " +
                 "LEFT JOIN leaderboard l ON u._id = l.user_id " +
@@ -85,6 +85,7 @@ public class LeaderboardActivity extends AppCompatActivity {
             }
         }
 
+        // Update UI based on whether we have entries
         if (entries.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
@@ -101,82 +102,24 @@ public class LeaderboardActivity extends AppCompatActivity {
         }
     }
 
-    // Inserta usuario con avatar comprimido y redimensionado
-    public long insertUserWithImage(String username, Bitmap avatarBitmap) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("username", username);
-
-        if (avatarBitmap != null) {
-            Bitmap resized = Bitmap.createScaledBitmap(avatarBitmap, 64, 64, true);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            resized.compress(Bitmap.CompressFormat.JPEG, 40, stream);
-            byte[] avatarBytes = stream.toByteArray();
-
-            if (avatarBytes.length > 100000) {
-                stream.reset();
-                resized.compress(Bitmap.CompressFormat.JPEG, 20, stream);
-                avatarBytes = stream.toByteArray();
-            }
-
-            values.put("avatar", avatarBytes);
-        } else {
-            values.putNull("avatar");
-        }
-
-        long result = db.insertWithOnConflict("users", null, values, SQLiteDatabase.CONFLICT_IGNORE);
-        return result;
-    }
-
-    private SQLiteDatabase getWritableDatabase() {
-        return dbHelper.getWritableDatabase();
-    }
-
-    // Actualiza la puntuación de un usuario inserta en tabla leaderboard
-    public void updateUserScore(long userId, int score) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("user_id", userId);
-        values.put("score", score);
-        values.put("timestamp", System.currentTimeMillis());
-
-        db.insert("leaderboard", null, values);
-
-        loadLeaderboard();
-    }
-
-    // Obtiene la puntuación máxima para un usuario
-    public int getUserMaxScore(long userId) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        int maxScore = 0;
-
-        String query = "SELECT MAX(score) as max_score FROM leaderboard WHERE user_id = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
-
-        if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    maxScore = cursor.getInt(cursor.getColumnIndexOrThrow("max_score"));
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-
-        return maxScore;
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-        loadLeaderboard();
+        if (soundManager != null)
+            soundManager.resumeBackgroundMusic();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (soundManager != null)
+            soundManager.pauseBackgroundMusic();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (dbHelper != null) {
-            dbHelper.close();
-        }
+        if (soundManager != null)
+            soundManager.release();
     }
 }

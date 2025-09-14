@@ -23,10 +23,46 @@ public class MainActivity extends AppCompatActivity {
     private GameSettings gameSettings;
     private Button achievementsButton;
 
+    private long currentUserId = -1;
+    private AchievementsManager achievementsManager;
+
+    // User-specific preference keys
+    private String keyScore() {
+        return "score_user_" + currentUserId;
+    }
+
+    private String keyStreak() {
+        return "streak_user_" + currentUserId;
+    }
+
+    private String keyCompletedPieces() {
+        return "completed_pieces_user_" + currentUserId;
+    }
+
+    private String keyCurrentChallenge() {
+        return "current_challenge_user_" + currentUserId;
+    }
+
+    private String keyGameCompleted() {
+        return "game_completed_user_" + currentUserId;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
+        currentUserId = prefs.getLong("current_user_id", -1);
+
+        if (currentUserId == -1) {
+            Toast.makeText(this, "Error: No user logged in", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        achievementsManager = new AchievementsManager(this, currentUserId);
 
         initializeViews();
         initializeGame();
@@ -52,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
     private void initializeGame() {
         gameSettings = new GameSettings(this);
         soundManager = new SoundManager(this);
-        prefs = getSharedPreferences("CodeQuest", MODE_PRIVATE);
-        // Música global ya iniciada desde Login
     }
 
     private void setupListeners() {
@@ -63,36 +97,47 @@ public class MainActivity extends AppCompatActivity {
         tutorialButton.setOnClickListener(v -> startActivity(new Intent(this, TutorialActivity.class)));
         leaderboardButton.setOnClickListener(v -> startActivity(new Intent(this, LeaderboardActivity.class)));
 
-        resetProgressButton.setOnClickListener(v -> {
-            prefs.edit()
-                    .putInt("current_challenge", 0)
-                    .putInt("completed_pieces", 0)
-                    .putInt("score", 0)
-                    .putInt("streak", 0)
-                    .putBoolean("game_completed", false)
-                    .apply();
-            Toast.makeText(this, "Progress reset successfully", Toast.LENGTH_SHORT).show();
-            updateUI();
-        });
+        resetProgressButton.setOnClickListener(v -> resetUserProgress());
 
         achievementsButton.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, AchievementsActivity.class));
         });
 
-        logoutButton.setOnClickListener(v -> {
-            // Borra solo datos relacionados a sesión del usuario sin afectar progreso
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.remove("current_user_id");
-            editor.remove("current_username");
-            editor.remove("current_avatar");
-            editor.apply();
+        logoutButton.setOnClickListener(v -> logoutUser());
+    }
 
-            stopService(new Intent(this, MusicService.class));
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-        });
+    private void resetUserProgress() {
+        // Reset user-specific game progress
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(keyCurrentChallenge());
+        editor.remove(keyCompletedPieces());
+        editor.remove(keyScore());
+        editor.remove(keyStreak());
+        editor.remove(keyGameCompleted());
+        editor.apply();
+
+        // Reset achievements for this user
+        if (achievementsManager != null) {
+            achievementsManager.resetAllAchievements();
+        }
+
+        Toast.makeText(this, "Progress and achievements reset successfully", Toast.LENGTH_SHORT).show();
+        updateUI();
+    }
+
+    private void logoutUser() {
+        // Clear session data only (don't clear user progress)
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove("current_user_id");
+        editor.remove("current_username");
+        editor.remove("current_avatar");
+        editor.apply();
+
+        stopService(new Intent(this, MusicService.class));
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void showDifficultySelection(boolean isNewGame) {
@@ -129,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
         gameSettings.setDifficulty(difficulty);
 
         if (isNewGame) {
-            prefs.edit().clear().apply();
+            // Only reset user-specific progress when starting new game
+            resetUserProgress();
             startGame();
         }
 
@@ -138,10 +184,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI() {
         DifficultyLevel difficulty = gameSettings.getDifficulty();
-        int completed = prefs.getInt("completed_pieces", 0);
+        int completed = prefs.getInt(keyCompletedPieces(), 0);
         int total = 10;
-        int score = prefs.getInt("score", 0);
-        int streak = prefs.getInt("streak", 0);
+        int score = prefs.getInt(keyScore(), 0);
+        int streak = prefs.getInt(keyStreak(), 0);
 
         progressBar.setMax(total);
         progressBar.setProgress(completed);

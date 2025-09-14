@@ -93,5 +93,18 @@
             android:fontFamily="sans-serif-medium"
             android:elevation="8dp"/>
 
+        <Button
+            android:id="@+id/btnClearUsers"
+            android:text="Delete user"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:backgroundTint="#44ECAA"
+            android:textColor="#34495E"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:elevation="8dp"/>
+
+
     </LinearLayout>
 </FrameLayout>
