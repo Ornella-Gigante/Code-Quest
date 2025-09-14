@@ -36,11 +36,12 @@ public class AchievementsManager {
         return prefs.getBoolean(achievementKey, false);
     }
 
-    public void unlockAchievement(String achievementKey, String achievementName) {
+    public boolean unlockAchievement(String achievementKey, String achievementName) {
         if (!isUnlocked(achievementKey)) {
             prefs.edit().putBoolean(achievementKey, true).apply();
             Toast.makeText(context, "Achievement unlocked! " + achievementName, Toast.LENGTH_SHORT).show();
         }
+        return false;
     }
 
     public void checkScoreAchievements(int score) {

@@ -3,6 +3,7 @@ package es.nellagames.codequestadventure;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -60,20 +61,23 @@ public class GameActivity extends AppCompatActivity {
         gamesPlayed++;
 
         // Logro: Primer inicio de sesión
-        achievementsManager.unlockAchievement(
+        if (achievementsManager.unlockAchievement(
                 AchievementsManager.ACH_FIRST_LOGIN,
                 "First Login"
-        );
+        )) {
+            showAchievementUnlockedDialog("Achievement Unlocked! 🎉", "You logged in for the first time.");
+        }
 
         // Logro: 5 partidas jugadas
         if (gamesPlayed == 5) {
-            achievementsManager.unlockAchievement(
+            if (achievementsManager.unlockAchievement(
                     AchievementsManager.ACH_FIVE_GAMES_PLAYED,
                     "Played 5 Games"
-            );
+            )) {
+                showAchievementUnlockedDialog("Achievement Unlocked! 🎉", "You played 5 games. Great job!");
+            }
         }
     }
-
 
     private void loadSavedProgress() {
         score = prefs.getInt("score", 0);
@@ -130,7 +134,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void loadCurrentChallenge() {
-        var challenge = gameLogic.getChallenge(currentChallengeIndex);
+        Challenge challenge = gameLogic.getChallenge(currentChallengeIndex);
         if (challenge != null) {
             challengeTitle.setText(challenge.getTitle());
             challengeDescription.setText(challenge.getDescription());
@@ -149,7 +153,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void checkAnswer() {
         String answer = challengeView.getUserAnswer();
-        var challenge = gameLogic.getChallenge(currentChallengeIndex);
+        Challenge challenge = gameLogic.getChallenge(currentChallengeIndex);
 
         if (challenge != null && challenge.isCorrect(answer)) {
             if (soundManager != null) soundManager.playSuccess();
@@ -159,7 +163,7 @@ public class GameActivity extends AppCompatActivity {
             prefs.edit().putInt("score", score).putInt("streak", streak).apply();
             updateScoreStreakUI();
 
-            // 🔹 Registrar respuesta correcta
+            // 🔹 Registrar respuesta correcta y verificar logro de racha
             onAnswerCorrect();
 
             showCorrectAnswerDialog(challenge.getCorrectExplanation(), () -> {
@@ -197,19 +201,43 @@ public class GameActivity extends AppCompatActivity {
     private void onAnswerCorrect() {
         correctStreak++;
         if (correctStreak == 3) {
-            achievementsManager.unlockAchievement(
+            if (achievementsManager.unlockAchievement(
                     AchievementsManager.ACH_THREE_CORRECT_STREAK,
                     "3 Correct Answers in a Row"
-            );
-            correctStreak = 0; // Reinicia la racha (o quítalo si quieres seguir acumulando)
+            )) {
+                showAchievementUnlockedDialog("Achievement Unlocked! 🎉", "You got 3 correct answers in a row!");
+            }
+            correctStreak = 0; // Reset the streak for the next
         }
     }
 
     private void onChallengeCompleted() {
-        achievementsManager.unlockAchievement(
+        if (achievementsManager.unlockAchievement(
                 AchievementsManager.ACH_FIRST_CHALLENGE,
                 "First Challenge Completed"
-        );
+        )) {
+            showAchievementUnlockedDialog("Achievement Unlocked! 🎉", "You completed your first challenge!");
+        }
+    }
+
+    // Popup con sonido de victory.mp3 para logros desbloqueados
+    private void showAchievementUnlockedDialog(String title, String message) {
+        final MediaPlayer victoryPlayer = MediaPlayer.create(this, R.raw.victory);
+        if (victoryPlayer != null) {
+            victoryPlayer.start();
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    if (victoryPlayer != null) {
+                        if (victoryPlayer.isPlaying()) victoryPlayer.stop();
+                        victoryPlayer.release();
+                    }
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void revealFullImageAndCongrats() {

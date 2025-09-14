@@ -12,9 +12,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class CreateUserActivity extends AppCompatActivity {
-    private EditText etNewUsername;  // Cambiado a etNewUsername
-    private Button btnCreate, btnAvatarUnicorn, btnAvatarFox;  // Cambiados los nombres
-    private ImageView avatarPreview;  // Cambiado a avatarPreview
+    private EditText etNewUsername;
+    private Button btnCreate, btnAvatarUnicorn, btnAvatarFox;
+    private ImageView avatarPreview;
     private SharedPreferences prefs;
     private Bitmap selectedAvatar;
 
@@ -32,25 +32,25 @@ public class CreateUserActivity extends AppCompatActivity {
         btnAvatarFox = findViewById(R.id.btnAvatarFox);
         avatarPreview = findViewById(R.id.avatarPreview);
 
-        // Avatar por defecto - unicornio redimensionado
-        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.unicorn);
+        // Avatar por defecto - robot (avatar1) redimensionado
+        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar1);
         selectedAvatar = resizeBitmap(originalBitmap, 200, 200);
         avatarPreview.setImageBitmap(selectedAvatar);
 
-        // Listener para seleccionar unicornio
+        // Listener para seleccionar robot (btnAvatarUnicorn en el layout)
         btnAvatarUnicorn.setOnClickListener(v -> {
-            Bitmap unicornBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.unicorn);
-            selectedAvatar = resizeBitmap(unicornBitmap, 200, 200);
+            Bitmap robotBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar1);
+            selectedAvatar = resizeBitmap(robotBitmap, 200, 200);
             avatarPreview.setImageBitmap(selectedAvatar);
-            Toast.makeText(this, "Unicorn selected!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Robot selected! 🤖", Toast.LENGTH_SHORT).show();
         });
 
-        // Listener para seleccionar zorro
+        // Listener para seleccionar gato (btnAvatarFox en el layout)
         btnAvatarFox.setOnClickListener(v -> {
-            Bitmap foxBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fox);
-            selectedAvatar = resizeBitmap(foxBitmap, 200, 200);
+            Bitmap catBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar2);
+            selectedAvatar = resizeBitmap(catBitmap, 200, 200);
             avatarPreview.setImageBitmap(selectedAvatar);
-            Toast.makeText(this, "Fox selected!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Cat selected! 🐱", Toast.LENGTH_SHORT).show();
         });
 
         // Listener para crear usuario
