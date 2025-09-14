@@ -33,6 +33,11 @@ public class GameActivity extends AppCompatActivity {
 
     private static final int TOTAL_CHALLENGES = 10;
 
+    // 🔹 Achievements
+    private AchievementsManager achievementsManager;
+    private int correctStreak = 0;
+    private int gamesPlayed = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +53,24 @@ public class GameActivity extends AppCompatActivity {
         loadCurrentChallenge();
         setupBackListener();
         updateScoreStreakUI();
+
+        // 🔹 Inicializar achievements
+        achievementsManager = new AchievementsManager(this);
+        gamesPlayed++;
+
+        // Logro: Primer inicio de sesión
+        achievementsManager.unlockAchievement(
+                AchievementsManager.ACH_FIRST_LOGIN,
+                "First Login"
+        );
+
+        // Logro: 5 partidas jugadas
+        if (gamesPlayed == 5) {
+            achievementsManager.unlockAchievement(
+                    AchievementsManager.ACH_FIVE_GAMES_PLAYED,
+                    "Played 5 Games"
+            );
+        }
     }
 
     private void loadSavedProgress() {
@@ -55,6 +78,7 @@ public class GameActivity extends AppCompatActivity {
         streak = prefs.getInt("streak", 0);
         completedPiecesCount = prefs.getInt("completed_pieces", 0);
         currentChallengeIndex = prefs.getInt("current_challenge", 0);
+        gamesPlayed = prefs.getInt("games_played", 0);
     }
 
     private void initializeViews() {
@@ -76,6 +100,7 @@ public class GameActivity extends AppCompatActivity {
     private void setupBackListener() {
         backToMenuButton.setOnClickListener(v -> {
             saveScoreToLeaderboard();
+            prefs.edit().putInt("games_played", gamesPlayed).apply();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
@@ -113,8 +138,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        submitButton.setVisibility(Button.VISIBLE);
-        nextButton.setVisibility(Button.GONE);
+        submitButton.setVisibility(View.VISIBLE);
+        nextButton.setVisibility(View.GONE);
 
         challengeTitle.setText("Challenge " + (currentChallengeIndex + 1) + " of " + TOTAL_CHALLENGES);
         updateScoreStreakUI();
@@ -132,6 +157,9 @@ public class GameActivity extends AppCompatActivity {
             prefs.edit().putInt("score", score).putInt("streak", streak).apply();
             updateScoreStreakUI();
 
+            // 🔹 Registrar respuesta correcta
+            onAnswerCorrect();
+
             showCorrectAnswerDialog(challenge.getCorrectExplanation(), () -> {
                 completedPiecesCount++;
                 currentChallengeIndex++;
@@ -144,11 +172,12 @@ public class GameActivity extends AppCompatActivity {
                 updatePicturePiecesMessageVisibility(completedPiecesCount);
 
                 if (completedPiecesCount >= TOTAL_CHALLENGES) {
+                    onChallengeCompleted(); // 🔹 Logro por completar reto
                     revealFullImageAndCongrats();
                 } else {
                     Toast.makeText(this, "Correct! Piece " + completedPiecesCount + " revealed!", Toast.LENGTH_LONG).show();
-                    submitButton.setVisibility(Button.GONE);
-                    nextButton.setVisibility(Button.VISIBLE);
+                    submitButton.setVisibility(View.GONE);
+                    nextButton.setVisibility(View.VISIBLE);
                     nextButton.setText("Next Challenge");
                 }
             });
@@ -161,6 +190,24 @@ public class GameActivity extends AppCompatActivity {
             String hint = (challenge != null) ? challenge.getHint() : "Try again!";
             showHintDialog(hint);
         }
+    }
+
+    private void onAnswerCorrect() {
+        correctStreak++;
+        if (correctStreak == 3) {
+            achievementsManager.unlockAchievement(
+                    AchievementsManager.ACH_THREE_CORRECT_STREAK,
+                    "3 Correct Answers in a Row"
+            );
+            correctStreak = 0; // Reinicia la racha (o quítalo si quieres seguir acumulando)
+        }
+    }
+
+    private void onChallengeCompleted() {
+        achievementsManager.unlockAchievement(
+                AchievementsManager.ACH_FIRST_CHALLENGE,
+                "First Challenge Completed"
+        );
     }
 
     private void revealFullImageAndCongrats() {
@@ -218,8 +265,8 @@ public class GameActivity extends AppCompatActivity {
         if (currentChallengeIndex >= TOTAL_CHALLENGES) {
             showCompletion();
         } else {
-            submitButton.setVisibility(Button.VISIBLE);
-            nextButton.setVisibility(Button.GONE);
+            submitButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.GONE);
             loadCurrentChallenge();
             updateScoreStreakUI();
         }
@@ -247,6 +294,7 @@ public class GameActivity extends AppCompatActivity {
                     .putInt("completed_pieces", completedPiecesCount)
                     .putInt("score", score)
                     .putInt("streak", streak)
+                    .putInt("games_played", gamesPlayed)
                     .apply();
         }
     }
