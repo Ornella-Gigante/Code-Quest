@@ -13,25 +13,20 @@
         android:theme="@style/Theme.CodeQuestAdventure"
         tools:targetApi="31">
 
-        <!-- Crear usuario -->
         <activity android:name=".CreateUserActivity" />
-
-        <!-- Login ES EL LAUNCHER -->
-        <activity
-            android:name=".LoginActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
+        <activity android:name=".LoginActivity" android:exported="true" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="portrait"/>
         <activity android:name=".GameActivity" android:exported="false" android:screenOrientation="portrait"/>
-        <activity android:name=".LeaderboardActivity"/>
-        <activity android:name=".TutorialActivity" android:exported="false" android:screenOrientation="portrait"/>
-        <activity android:name=".AchievementsActivity" android:exported="false" android:screenOrientation="portrait"/>
+        <activity android:name=".LeaderboardActivity" />
+        <activity android:name=".TutorialActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".AchievementsActivity" android:exported="false" android:screenOrientation="portrait" />
+
+        <service android:name=".MusicService" android:enabled="true" android:exported="false"/>
 
         <!-- Música de fondo siempre ejecutándose -->
         <service

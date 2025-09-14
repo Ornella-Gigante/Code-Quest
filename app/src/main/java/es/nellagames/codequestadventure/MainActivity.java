@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private SoundManager soundManager;
     private GameSettings gameSettings;
+    private Button achievementsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         scoreStreakText = findViewById(R.id.scoreStreakText);
         leaderboardButton = findViewById(R.id.leaderboardButton);
         logoutButton = findViewById(R.id.logoutButton);
+        achievementsButton = findViewById(R.id.achievementsButton);
     }
 
     private void initializeGame() {
@@ -71,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
                     .apply();
             Toast.makeText(this, "Progress reset successfully", Toast.LENGTH_SHORT).show();
             updateUI();
+        });
+
+        achievementsButton.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, AchievementsActivity.class));
         });
 
         logoutButton.setOnClickListener(v -> {
