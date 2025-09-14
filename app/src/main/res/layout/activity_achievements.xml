@@ -35,4 +35,14 @@
             android:lineSpacingExtra="6dp" />
     </ScrollView>
 
+    <Button
+        android:id="@+id/backToMainButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back to Main"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#45B39D"
+        android:layout_marginTop="24dp"/>
+
 </LinearLayout>

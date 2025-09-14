@@ -47,6 +47,9 @@ public class GameActivity extends AppCompatActivity {
         currentUserId = prefs.getLong("current_user_id", -1);
         currentUsername = prefs.getString("current_username", "Guest");
 
+        // Correct instantiation:
+        achievementsManager = new AchievementsManager(this, currentUserId);
+
         loadSavedProgress();
         initializeViews();
         setupGame();
@@ -54,8 +57,6 @@ public class GameActivity extends AppCompatActivity {
         setupBackListener();
         updateScoreStreakUI();
 
-        // 🔹 Inicializar achievements
-        achievementsManager = new AchievementsManager(this);
         gamesPlayed++;
 
         // Logro: Primer inicio de sesión
@@ -72,6 +73,7 @@ public class GameActivity extends AppCompatActivity {
             );
         }
     }
+
 
     private void loadSavedProgress() {
         score = prefs.getInt("score", 0);
